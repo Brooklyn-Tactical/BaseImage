@@ -2,22 +2,20 @@
 #define NETWORKING_H
 
 #include <Arduino.h>
-#include <DNSServer.h>
+#include "DNSServer.h"
 #include <HFSM.h>
+#include <ESPAsyncWebServer.h>
 
 // Platform-specific includes
 #ifdef ESP32
     #include <WiFi.h>
-    #include <WebServer.h>
     #include <ESPmDNS.h>
     #include <LittleFS.h>
     #define FILESYSTEM LittleFS
 #elif defined(ESP8266)
     #include <ESP8266WiFi.h>
-    #include <ESP8266WebServer.h>
     #include <ESP8266mDNS.h>
     #include <LittleFS.h>
-    #define WebServer ESP8266WebServer
     #define FILESYSTEM LittleFS
 #endif
 
@@ -35,13 +33,13 @@ class ApiSystem;
 class ApiGame;
 
 // --- Globals defined in main.cpp ---
-extern WebServer   server;
-extern DNSServer   dnsServer;
-extern const char* ap_ssid;
-extern const char* ap_password;
-extern IPAddress   apIP;
-extern ApiSystem   apiSystem;
-extern ApiGame     apiGame;
+extern AsyncWebServer server;
+extern DNSServer      dnsServer;
+extern const char*    ap_ssid;
+extern const char*    ap_password;
+extern IPAddress      apIP;
+extern ApiSystem      apiSystem;
+extern ApiGame        apiGame;
 
 // ============================================================
 //  State classes

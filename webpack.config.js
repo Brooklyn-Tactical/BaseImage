@@ -22,7 +22,17 @@ const createConfig = (appName) => ({
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              // Don't try to bundle absolute URL paths (e.g. /shared/...)
+              // — they are server-side routes resolved by the browser at runtime.
+              url: { filter: (url) => !url.startsWith('/') },
+            },
+          },
+        ],
       },
       {
         test: /\.(png|jpg|jpeg|gif|svg|ico)$/i,

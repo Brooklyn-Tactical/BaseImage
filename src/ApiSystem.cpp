@@ -1,53 +1,138 @@
 #include "ApiSystem.h"
+#include "networking.h"   // provides FILESYSTEM macro and LittleFS
 
-// Initialize static instance pointer
-ApiSystem* ApiSystem::_instance = nullptr;
+// The Update/Updater global object has different header names per platform
+#ifdef ESP32
+    #include <Update.h>
+#else
+    #include <Updater.h>
+#endif
+
+// Some ESP8266 core versions omit this constant
+#ifndef UPDATE_SIZE_UNKNOWN
+    #define UPDATE_SIZE_UNKNOWN 0xFFFFFFFF
+#endif
+
+#ifdef ESP32
+    #include <WiFi.h>
+#elif defined(ESP8266)
+    #include <ESP8266WiFi.h>
+    #include <ESPAsyncTCP.h>
+#endif
+
+extern uint16_t  global_battery_level;
+extern JsonDocument global_configuration;
 
 // Constructor
-ApiSystem::ApiSystem() : _server(nullptr) {
-    _instance = this;
+ApiSystem::ApiSystem() {
 }
 
 // Register API routes
-void ApiSystem::registerRoutes(WebServer& server) {
-    _server = &server;
-    
-    // Register system API endpoints
-    _server->on("/api/system/info", HTTP_GET, handleGetInfo);
-    _server->on("/api/system/status", HTTP_GET, handleGetStatus);
-    _server->on("/api/system/restart", HTTP_POST, handleRestart);
-    _server->on("/api/system/wifi", HTTP_GET, handleGetWiFiInfo);
-    
+void ApiSystem::registerRoutes(AsyncWebServer& server) {
+    server.on("/api/system/info", HTTP_GET, [this](AsyncWebServerRequest *request) {
+        this->getInfo(request);
+    });
+    server.on("/api/system/status", HTTP_GET, [this](AsyncWebServerRequest *request) {
+        this->getStatus(request);
+    });
+    server.on("/api/system/restart", HTTP_POST, [this](AsyncWebServerRequest *request) {
+        this->restart(request);
+    });
+    server.on("/api/battery", HTTP_GET, [this](AsyncWebServerRequest *request) {
+        this->getBattery(request);
+    });
+
+    // WiFi config GET
+    server.on("/api/system/wifi", HTTP_GET, [this](AsyncWebServerRequest *request) {
+        Serial.println("WiFi config GET");
+        AsyncJsonResponse *response = new AsyncJsonResponse();
+        JsonObject root = response->getRoot().to<JsonObject>();
+        root["channel"]  = global_configuration["channel"]  | 1;
+        root["ssid"]     = global_configuration["ssid"]     | "BostonTactical";
+        root["password"] = global_configuration["password"] | "";
+        response->setCode(200);
+        response->setLength();
+        request->send(response);
+    });
+
+    // WiFi config POST
+    static AsyncCallbackJsonWebHandler *wifiPosthandler = new AsyncCallbackJsonWebHandler("/api/system/wifi");
+    wifiPosthandler->setMaxContentLength(200);
+    wifiPosthandler->setMethod(HTTP_POST | HTTP_PUT);
+    wifiPosthandler->onRequest([this](AsyncWebServerRequest *request, JsonVariant &json) {
+        Serial.print("[WiFi] Config update: "); Serial.println(json.as<String>().c_str());
+        global_configuration["channel"]  = json["channel"]  | (int)(global_configuration["channel"]  | 1);
+        global_configuration["ssid"]     = json["ssid"]     | (const char*)(global_configuration["ssid"]     | "");
+        global_configuration["password"] = json["password"] | (const char*)(global_configuration["password"] | "");
+        saveConfiguration();
+        request->send(200, "application/json", "{\"success\":true}");
+    });
+    server.addHandler(wifiPosthandler);
+
+    // Mesh config GET
+    server.on("/api/system/mesh", HTTP_GET, [this](AsyncWebServerRequest *request) {
+        Serial.println("Mesh config GET");
+        AsyncJsonResponse *response = new AsyncJsonResponse();
+        JsonObject root = response->getRoot().to<JsonObject>();
+        root["net_id"]      = global_configuration["net_id"]      | 1;
+        root["mode_id"]     = global_configuration["mode_id"]     | 0;
+        root["device_id"]   = global_configuration["device_id"]   | 0;
+        root["description"] = global_configuration["description"] | "";
+        response->setCode(200);
+        response->setLength();
+        request->send(response);
+    });
+
+    // Mesh config POST
+    static AsyncCallbackJsonWebHandler *meshPostHandler = new AsyncCallbackJsonWebHandler("/api/system/mesh");
+    meshPostHandler->setMaxContentLength(200);
+    meshPostHandler->setMethod(HTTP_POST | HTTP_PUT);
+    meshPostHandler->onRequest([this](AsyncWebServerRequest *request, JsonVariant &json) {
+        Serial.print("[Mesh] Config update: "); Serial.println(json.as<String>().c_str());
+        global_configuration["net_id"]      = json["net_id"]      | (int)(global_configuration["net_id"]      | 1);
+        global_configuration["mode_id"]     = json["mode_id"]     | (int)(global_configuration["mode_id"]     | 0);
+        global_configuration["device_id"]   = json["device_id"]   | (int)(global_configuration["device_id"]   | 0);
+        global_configuration["description"] = json["description"] | (const char*)(global_configuration["description"] | "");
+        saveConfiguration();
+        request->send(200, "application/json", "{\"success\":true}");
+    });
+    server.addHandler(meshPostHandler);
+
+    // Lifted-files manifest
+    server.on("/api/system/files", HTTP_GET, [this](AsyncWebServerRequest *request) {
+        this->getFiles(request);
+    });
+
+    // Generic file download / upload
+    server.on("/api/system/file", HTTP_GET, [this](AsyncWebServerRequest *request) {
+        this->getFile(request);
+    });
+    server.on("/api/system/file", HTTP_POST,
+        [](AsyncWebServerRequest *request) {},
+        nullptr,
+        [this](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+            this->setFile(request, data, len, index, total);
+        }
+    );
+
+    // Filesystem OTA upload
+    server.on("/api/system/ota/filesystem", HTTP_POST,
+        [this](AsyncWebServerRequest *request) {
+            this->otaFilesystemDone(request);
+        },
+        [this](AsyncWebServerRequest *request, String filename, size_t index,
+               uint8_t *data, size_t len, bool final) {
+            this->otaFilesystemUpload(request, filename, index, data, len, final);
+        }
+    );
+
     Serial.println("ApiSystem routes registered");
 }
 
-// Static handlers
-void ApiSystem::handleGetInfo() {
-    if (_instance) {
-        _instance->getInfo();
-    }
-}
 
-void ApiSystem::handleGetStatus() {
-    if (_instance) {
-        _instance->getStatus();
-    }
-}
-
-void ApiSystem::handleRestart() {
-    if (_instance) {
-        _instance->restart();
-    }
-}
-
-void ApiSystem::handleGetWiFiInfo() {
-    if (_instance) {
-        _instance->getWiFiInfo();
-    }
-}
 
 // Implementation methods
-void ApiSystem::getInfo() {
+void ApiSystem::getInfo(AsyncWebServerRequest *request) {
     JsonDocument doc;
 
     #ifdef ESP32
@@ -70,11 +155,10 @@ void ApiSystem::getInfo() {
 
     String response;
     serializeJson(doc, response);
-
-    _server->send(200, "application/json", response);
+    request->send(200, "application/json", response);
 }
 
-void ApiSystem::getStatus() {
+void ApiSystem::getStatus(AsyncWebServerRequest *request) {
     JsonDocument doc;
 
     doc["uptime"] = millis() / 1000;
@@ -91,36 +175,166 @@ void ApiSystem::getStatus() {
 
     String response;
     serializeJson(doc, response);
-
-    _server->send(200, "application/json", response);
+    request->send(200, "application/json", response);
 }
 
-void ApiSystem::restart() {
+void ApiSystem::restart(AsyncWebServerRequest *request) {
     JsonDocument doc;
     doc["message"] = "Restarting device...";
     doc["success"] = true;
-    
+
     String response;
     serializeJson(doc, response);
-    
-    _server->send(200, "application/json", response);
-    
+    request->send(200, "application/json", response);
+
     delay(1000);
     ESP.restart();
 }
 
-void ApiSystem::getWiFiInfo() {
+void ApiSystem::getBattery(AsyncWebServerRequest *request) {
     JsonDocument doc;
-    
-    doc["mode"] = "AP";
-    doc["ssid"] = WiFi.softAPSSID();
-    doc["ip"] = WiFi.softAPIP().toString();
-    doc["mac"] = WiFi.softAPmacAddress();
-    doc["connectedClients"] = WiFi.softAPgetStationNum();
-    
+    doc["battery"] = (int)constrain((global_battery_level * 100) / 1024, 0, 100);
     String response;
     serializeJson(doc, response);
-    
-    _server->send(200, "application/json", response);
+    request->send(200, "application/json", response);
+}
+
+// ---------------------------------------------------------------------------
+// Persist global_configuration to /network.json
+// ---------------------------------------------------------------------------
+
+void ApiSystem::saveConfiguration() {
+    File f = FILESYSTEM.open("/network.json", "w");
+    if (!f) {
+        Serial.println("[CFG] Failed to open /network.json for writing");
+        return;
+    }
+    serializeJson(global_configuration, f);
+    f.close();
+    Serial.println("[CFG] /network.json saved");
+}
+
+// ---------------------------------------------------------------------------
+// Lifted-files manifest  GET /api/system/files
+// ---------------------------------------------------------------------------
+
+void ApiSystem::getFiles(AsyncWebServerRequest *request) {
+    File f = FILESYSTEM.open("/filesystem.json", "r");
+    if (!f) {
+        request->send(404, "application/json", "{\"error\":\"filesystem.json not found\"}");
+        return;
+    }
+    JsonDocument doc;
+    DeserializationError err = deserializeJson(doc, f);
+    f.close();
+    if (err != DeserializationError::Ok) {
+        request->send(500, "application/json", "{\"error\":\"Failed to parse filesystem.json\"}");
+        return;
+    }
+    // Return only the lifted_files array so the web app doesn't need to know
+    // the internal structure of filesystem.json.
+    JsonDocument out;
+    out["lifted_files"] = doc["lifted_files"];
+    String response;
+    serializeJson(out, response);
+    request->send(200, "application/json", response);
+}
+
+// ---------------------------------------------------------------------------
+// Generic file download  GET /api/system/file?path=/foo
+// ---------------------------------------------------------------------------
+
+void ApiSystem::getFile(AsyncWebServerRequest *request) {
+    if (!request->hasParam("path")) {
+        request->send(400, "application/json", "{\"error\":\"Missing path parameter\"}");
+        return;
+    }
+    String path = request->getParam("path")->value();
+    if (!FILESYSTEM.exists(path)) {
+        request->send(404, "application/json", "{\"error\":\"File not found\"}");
+        return;
+    }
+    // Let ESPAsyncWebServer choose the MIME type from the file extension.
+    request->send(FILESYSTEM, path);
+}
+
+// ---------------------------------------------------------------------------
+// Generic file upload  POST /api/system/file?path=/foo
+// ---------------------------------------------------------------------------
+
+void ApiSystem::setFile(AsyncWebServerRequest *request, uint8_t *data, size_t len,
+                         size_t index, size_t total) {
+    if (!request->hasParam("path")) {
+        request->send(400, "application/json", "{\"error\":\"Missing path parameter\"}");
+        return;
+    }
+    String path = request->getParam("path")->value();
+
+    if (index == 0) {
+        Serial.print("[FILE] Writing "); Serial.println(path);
+        _uploadFile = FILESYSTEM.open(path, "w");
+    }
+
+    if (_uploadFile) {
+        _uploadFile.write(data, len);
+    }
+
+    if (index + len >= total) {
+        if (_uploadFile) {
+            _uploadFile.close();
+            Serial.print("[FILE] Saved "); Serial.println(path);
+            request->send(200, "application/json", "{\"success\":true}");
+        } else {
+            request->send(500, "application/json", "{\"error\":\"Could not open file for writing\"}");
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Filesystem OTA  POST /api/system/ota/filesystem
+// ---------------------------------------------------------------------------
+
+void ApiSystem::otaFilesystemUpload(AsyncWebServerRequest *request, String filename,
+                                     size_t index, uint8_t *data, size_t len, bool final) {
+    if (index == 0) {
+        Serial.println(F("[OTA] Filesystem upload started"));
+        FILESYSTEM.end();   // unmount before flashing
+#ifdef ESP32
+        if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_SPIFFS)) {
+#else
+        if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FS)) {
+#endif
+            Serial.println(F("[OTA] Update.begin failed"));
+            return;
+        }
+    }
+
+    if (Update.write(data, len) != len) {
+        Serial.println(F("[OTA] Update.write error"));
+    }
+
+    if (final) {
+        if (Update.end(true)) {
+            Serial.println(F("[OTA] Flash complete — remounting filesystem"));
+        } else {
+            Serial.print(F("[OTA] Update.end error: "));
+            Serial.println(Update.getError());
+        }
+        // Remount regardless so the device stays operational
+#ifdef ESP32
+        FILESYSTEM.begin(true);
+#else
+        FILESYSTEM.begin();
+#endif
+        Serial.println(F("[OTA] Filesystem remounted"));
+    }
+}
+
+void ApiSystem::otaFilesystemDone(AsyncWebServerRequest *request) {
+    bool ok = !Update.hasError();
+    Serial.print(F("[OTA] Filesystem OTA result: "));
+    Serial.println(ok ? "SUCCESS" : "FAILED");
+    request->send(ok ? 200 : 500, "application/json",
+                  ok ? "{\"success\":true}" : "{\"success\":false,\"error\":\"Flash failed\"}");
 }
 

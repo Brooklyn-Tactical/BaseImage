@@ -1,5 +1,22 @@
+@font-face {
+    font-family: 'Saira';
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+    src: url('/shared/Saira-Medium.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Saira SemiCondensed';
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+    src: url('/shared/Saira_SemiCondensed-Light.woff2') format('woff2');
+}
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Saira SemiCondensed', sans-serif;
+    font-weight: 300;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -24,6 +41,11 @@ body {
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     max-width: 600px;
     width: 90%;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Saira', sans-serif;
+    font-weight: 500;
 }
 
 h1 {

@@ -1,160 +1,176 @@
 import React, { useState, useEffect } from 'react';
+import {
+  CssBaseline, AppBar, Toolbar, IconButton, Typography,
+  Drawer, List, ListItem, ListItemButton, ListItemText,
+  ListSubheader, Divider, Snackbar, Box,
+} from '@mui/material';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import MenuIcon from '@mui/icons-material/Menu';
+import MenuOpenIcon from '@mui/icons-material/MenuOpen';
+import BatteryFullIcon from '@mui/icons-material/BatteryFull';
+import Battery6BarIcon from '@mui/icons-material/Battery6Bar';
+import Battery5BarIcon from '@mui/icons-material/Battery5Bar';
+import Battery4BarIcon from '@mui/icons-material/Battery4Bar';
+import Battery3BarIcon from '@mui/icons-material/Battery3Bar';
+import Battery2BarIcon from '@mui/icons-material/Battery2Bar';
+import Battery1BarIcon from '@mui/icons-material/Battery1Bar';
+import BatteryAlertIcon from '@mui/icons-material/BatteryAlert';
+
+import HomePage from './pages/HomePage';
+import WiFiPage from './pages/WiFiPage';
+import MeshPage from './pages/MeshPage';
+import OtaPage from './pages/OtaPage';
+
+const BATTERY_ICONS = [
+  BatteryFullIcon, Battery6BarIcon, Battery5BarIcon, Battery4BarIcon,
+  Battery3BarIcon, Battery2BarIcon, Battery1BarIcon, BatteryAlertIcon,
+];
+
+function getBatteryIcon(pct) {
+  const clamped = Math.max(0, Math.min(100, pct ?? 100));
+  const idx = Math.min(7, Math.floor((100 - clamped) / 12.5));
+  return BATTERY_ICONS[idx];
+}
+
+const theme = createTheme({
+  typography: {
+    // Default body font: Saira SemiCondensed Light
+    fontFamily: "'Saira SemiCondensed', sans-serif",
+    fontWeightRegular: 300,
+    // Heading variants: Saira Medium
+    h1: { fontFamily: "'Saira', sans-serif", fontWeight: 500 },
+    h2: { fontFamily: "'Saira', sans-serif", fontWeight: 500 },
+    h3: { fontFamily: "'Saira', sans-serif", fontWeight: 500 },
+    h4: { fontFamily: "'Saira', sans-serif", fontWeight: 500 },
+    h5: { fontFamily: "'Saira', sans-serif", fontWeight: 500 },
+    h6: { fontFamily: "'Saira', sans-serif", fontWeight: 500 },
+    subtitle1: { fontFamily: "'Saira', sans-serif", fontWeight: 500 },
+    subtitle2: { fontFamily: "'Saira', sans-serif", fontWeight: 500 },
+  },
+});
+
+const DRAWER_WIDTH = 240;
+
+const NAV_GROUPS = [
+  { group: 'Network', items: [{ label: 'WiFi', page: 'wifi' }, { label: 'Mesh', page: 'mesh' }] },
+  { group: 'OTA Update',     items: [{ label: 'Firmware', page: 'firmware' }, { label: 'Filesystem', page: 'filesystem' }] },
+];
 
 function App() {
-  const [systemInfo, setSystemInfo] = useState(null);
-  const [systemStatus, setSystemStatus] = useState(null);
-  const [wifiInfo, setWifiInfo] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState('home');
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [battery, setBattery] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState('');
 
+  const showSnackbar = (msg) => { setSnackbarMsg(msg); setSnackbarOpen(true); };
+
+  const fetchBattery = async () => {
+    try {
+      const res = await fetch('/api/battery');
+      const data = await res.json();
+      const pct = data.battery ?? -1;
+      setBattery(pct);
+      return pct;
+    } catch {
+      setBattery(-1);
+      return -1;
+    }
+  };
+
+  // Fetch on mount and poll every 30 seconds
   useEffect(() => {
-    fetchSystemData();
-    const interval = setInterval(fetchSystemStatus, 5000);
+    fetchBattery();
+    const interval = setInterval(fetchBattery, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  const fetchSystemData = async () => {
-    try {
-      const [infoRes, statusRes, wifiRes] = await Promise.all([
-        fetch('/api/system/info'),
-        fetch('/api/system/status'),
-        fetch('/api/system/wifi')
-      ]);
-      
-      const info = await infoRes.json();
-      const status = await statusRes.json();
-      const wifi = await wifiRes.json();
-      
-      setSystemInfo(info);
-      setSystemStatus(status);
-      setWifiInfo(wifi);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching system data:', error);
-      setLoading(false);
+  const handleBatteryClick = async () => {
+    const pct = await fetchBattery();
+    if (pct >= 0) {
+      showSnackbar(`Battery Level: ${pct}%`);
+    } else {
+      showSnackbar('Failed to read battery level');
     }
   };
 
-  const fetchSystemStatus = async () => {
-    try {
-      const response = await fetch('/api/system/status');
-      const data = await response.json();
-      setSystemStatus(data);
-    } catch (error) {
-      console.error('Error fetching system status:', error);
-    }
-  };
+  const handleNavClick = (p) => { setPage(p); setDrawerOpen(false); };
 
-  const handleRestart = async () => {
-    if (confirm('Are you sure you want to restart the device?')) {
-      try {
-        await fetch('/api/system/restart', { method: 'POST' });
-        alert('Device is restarting...');
-      } catch (error) {
-        console.error('Error restarting device:', error);
-      }
-    }
-  };
+  const BattIcon = getBatteryIcon(battery);
 
-  const handleButtonClick = () => {
-    alert('You clicked my button!');
+  const pageMap = {
+    home:       <HomePage />,
+    wifi:       <WiFiPage onSnackbar={showSnackbar} />,
+    mesh:       <MeshPage onSnackbar={showSnackbar} />,
+    firmware:   <OtaPage type="firmware" />,
+    filesystem: <OtaPage type="filesystem" />,
   };
-
-  const formatUptime = (seconds) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${hours}h ${minutes}m ${secs}s`;
-  };
-
-  const formatBytes = (bytes) => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' KB';
-    return (bytes / 1048576).toFixed(2) + ' MB';
-  };
-
-  if (loading) {
-    return (
-      <div className="container">
-        <h1>Loading...</h1>
-      </div>
-    );
-  }
 
   return (
-    <div className="container">
-      <h1>System Interface</h1>
-      
-      {systemInfo && (
-        <div className="info-section">
-          <h2>Device Information</h2>
-          <div className="info-grid">
-            <div className="info-item">
-              <span className="label">Device:</span>
-              <span className="value">{systemInfo.device}</span>
-            </div>
-            <div className="info-item">
-              <span className="label">Chip Model:</span>
-              <span className="value">{systemInfo.chipModel}</span>
-            </div>
-            <div className="info-item">
-              <span className="label">CPU Frequency:</span>
-              <span className="value">{systemInfo.cpuFreqMHz} MHz</span>
-            </div>
-            <div className="info-item">
-              <span className="label">Flash Size:</span>
-              <span className="value">{formatBytes(systemInfo.flashSize)}</span>
-            </div>
-          </div>
-        </div>
-      )}
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
 
-      {systemStatus && (
-        <div className="info-section">
-          <h2>System Status</h2>
-          <div className="info-grid">
-            <div className="info-item">
-              <span className="label">Uptime:</span>
-              <span className="value">{formatUptime(systemStatus.uptime)}</span>
-            </div>
-            <div className="info-item">
-              <span className="label">Free Heap:</span>
-              <span className="value">{formatBytes(systemStatus.freeHeap)}</span>
-            </div>
-            <div className="info-item">
-              <span className="label">Heap Size:</span>
-              <span className="value">{formatBytes(systemStatus.heapSize)}</span>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ── App Bar ── */}
+      <AppBar position="fixed">
+        <Toolbar>
+          <IconButton color="inherit" edge="start" onClick={() => setDrawerOpen(true)} sx={{ mr: 1 }}>
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" sx={{ flexGrow: 1, textAlign: 'center' }}>
+            System Admin
+          </Typography>
+          <IconButton color="inherit" edge="end" onClick={handleBatteryClick}>
+            <BattIcon />
+          </IconButton>
+        </Toolbar>
+      </AppBar>
 
-      {wifiInfo && (
-        <div className="info-section">
-          <h2>WiFi Information</h2>
-          <div className="info-grid">
-            <div className="info-item">
-              <span className="label">SSID:</span>
-              <span className="value">{wifiInfo.ssid}</span>
-            </div>
-            <div className="info-item">
-              <span className="label">IP Address:</span>
-              <span className="value">{wifiInfo.ip}</span>
-            </div>
-            <div className="info-item">
-              <span className="label">Connected Clients:</span>
-              <span className="value">{wifiInfo.connectedClients}</span>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ── Navigation Drawer ── */}
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        sx={{ '& .MuiDrawer-paper': { width: DRAWER_WIDTH } }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', px: 1, py: 0.5 }}>
+          <IconButton onClick={() => setDrawerOpen(false)}>
+            <MenuOpenIcon />
+          </IconButton>
+          <Typography variant="subtitle1" sx={{ flexGrow: 1, textAlign: 'center', pr: 5 }}>
+            Navigation
+          </Typography>
+        </Box>
+        <Divider />
+        <List disablePadding>
+          {NAV_GROUPS.map(({ group, items }) => (
+            <React.Fragment key={group}>
+              <ListSubheader>{group}</ListSubheader>
+              {items.map(({ label, page: p }) => (
+                <ListItem key={p} disablePadding>
+                  <ListItemButton selected={page === p} onClick={() => handleNavClick(p)} sx={{ pl: 4 }}>
+                    <ListItemText primary={label} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </React.Fragment>
+          ))}
+        </List>
+      </Drawer>
 
-      <div className="button-group">
-        <button onClick={handleButtonClick}>Click Me!</button>
-        <button onClick={handleRestart} className="btn-danger">
-          Restart Device
-        </button>
-      </div>
-    </div>
+      {/* ── Page Content ── */}
+      <Box component="main" sx={{ pt: 8 }}>
+        {pageMap[page]}
+      </Box>
+
+      {/* ── Battery Snackbar ── */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={5000}
+        onClose={() => setSnackbarOpen(false)}
+        message={snackbarMsg}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
+    </ThemeProvider>
   );
 }
 

@@ -1,7 +1,11 @@
 {
   "channel": 1,
-  "ssid": "BrooklynTactical_4Team",
+  "ssid": "BrooklynTactical_BioVial",
+  "password": "12345678",
   "device_id": "0",
+  "net_id": "1",
+  "mode_id": 0,
+  "description": "",
   "relays": [
     {"device": "0", "name":"Relay1"},
     {"device": "1", "name":"Relay2"},

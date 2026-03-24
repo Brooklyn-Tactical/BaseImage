@@ -61,6 +61,17 @@ module.exports = function(grunt) {
           },
         ],
       },
+      // Copy shared static assets (fonts, images, etc.) to a single LittleFS location
+      shared: {
+        files: [
+          {
+            expand: true,
+            cwd: 'web/shared/',
+            src: ['**/*'],
+            dest: 'data/web/shared/',
+          },
+        ],
+      },
     },
     
     // Watch task - watches for file changes and rebuilds
@@ -75,6 +86,13 @@ module.exports = function(grunt) {
       system: {
         files: ['web/system/src/**/*', 'web/system/public/**/*'],
         tasks: ['build-system'],
+        options: {
+          spawn: false,
+        },
+      },
+      shared: {
+        files: ['web/shared/**/*'],
+        tasks: ['copy:shared'],
         options: {
           spawn: false,
         },
@@ -202,20 +220,23 @@ module.exports = function(grunt) {
     'webpack:build',
     'copy:game',
     'copy:assets',
+    'copy:shared',
   ]);
-  
+
   grunt.registerTask('build-system', [
     'webpack:build',
     'copy:system',
     'copy:assets',
+    'copy:shared',
   ]);
-  
+
   grunt.registerTask('build', [
     'clean',
     'webpack:build',
     'copy:game',
     'copy:system',
     'copy:assets',
+    'copy:shared',
     'gzip',
   ]);
   

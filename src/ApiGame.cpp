@@ -1,130 +1,93 @@
 #include "ApiGame.h"
 
-// Initialize static instance pointer
-ApiGame* ApiGame::_instance = nullptr;
+extern uint16_t global_battery_level;
 
 // Constructor
-ApiGame::ApiGame() : _server(nullptr), _gameState("idle"), _score(0), _gameStartTime(0) {
-    _instance = this;
+ApiGame::ApiGame() : _gameState("idle"), _score(0), _gameStartTime(0) {
 }
 
 // Register API routes
-void ApiGame::registerRoutes(WebServer& server) {
-    _server = &server;
-
-    // Register game API endpoints
-    _server->on("/api/game/state", HTTP_GET, handleGetGameState);
-    _server->on("/api/game/state", HTTP_POST, handleSetGameState);
-    _server->on("/api/game/score", HTTP_GET, handleGetScore);
-    _server->on("/api/game/score", HTTP_POST, handleSetScore);
-    _server->on("/api/game/reset", HTTP_POST, handleResetGame);
+void ApiGame::registerRoutes(AsyncWebServer& server) {
+    server.on("/api/game/state", HTTP_GET, [this](AsyncWebServerRequest *request) {
+        this->getGameState(request);
+    });
+    // POST with body handler for JSON body
+    server.on("/api/game/state", HTTP_POST,
+        [](AsyncWebServerRequest *request) { /* response sent in body handler */ },
+        nullptr,
+        [this](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+            this->setGameState(request, data, len, index, total);
+        }
+    );
+    server.on("/api/game/score", HTTP_GET, [this](AsyncWebServerRequest *request) {
+        this->getScore(request);
+    });
+    // POST with body handler for JSON body
+    server.on("/api/game/score", HTTP_POST,
+        [](AsyncWebServerRequest *request) { /* response sent in body handler */ },
+        nullptr,
+        [this](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+            this->setScore(request, data, len, index, total);
+        }
+    );
+    server.on("/api/game/reset", HTTP_POST, [this](AsyncWebServerRequest *request) {
+        this->resetGame(request);
+    });
+    server.on("/api/battery", HTTP_GET, [this](AsyncWebServerRequest *request) {
+        this->getBattery(request);
+    });
 
     Serial.println("ApiGame routes registered");
 }
 
-// Static handlers
-void ApiGame::handleGetGameState() {
-    if (_instance) {
-        _instance->getGameState();
-    }
-}
 
-void ApiGame::handleSetGameState() {
-    if (_instance) {
-        _instance->setGameState();
-    }
-}
-
-void ApiGame::handleGetScore() {
-    if (_instance) {
-        _instance->getScore();
-    }
-}
-
-void ApiGame::handleSetScore() {
-    if (_instance) {
-        _instance->setScore();
-    }
-}
-
-void ApiGame::handleResetGame() {
-    if (_instance) {
-        _instance->resetGame();
-    }
-}
 
 // Implementation methods
-void ApiGame::getGameState() {
+void ApiGame::getGameState(AsyncWebServerRequest *request) {
     JsonDocument doc;
 
     doc["state"] = _gameState;
     doc["score"] = _score;
     doc["uptime"] = millis() / 1000;
-
-    if (_gameStartTime > 0) {
-        doc["gameTime"] = (millis() - _gameStartTime) / 1000;
-    } else {
-        doc["gameTime"] = 0;
-    }
+    doc["gameTime"] = (_gameStartTime > 0) ? (millis() - _gameStartTime) / 1000 : 0;
 
     String response;
     serializeJson(doc, response);
-
-    _server->send(200, "application/json", response);
+    request->send(200, "application/json", response);
 }
 
-void ApiGame::setGameState() {
-    if (_server->hasArg("plain")) {
-        JsonDocument doc;
-        DeserializationError error = deserializeJson(doc, _server->arg("plain"));
+void ApiGame::setGameState(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+    // Only process on the final chunk
+    if (index + len != total) return;
 
-        if (error) {
-            JsonDocument errorDoc;
-            errorDoc["error"] = "Invalid JSON";
-            errorDoc["success"] = false;
+    JsonDocument doc;
+    DeserializationError error = deserializeJson(doc, data, len);
 
-            String response;
-            serializeJson(errorDoc, response);
-            _server->send(400, "application/json", response);
-            return;
+    if (error) {
+        request->send(400, "application/json", "{\"error\":\"Invalid JSON\",\"success\":false}");
+        return;
+    }
+
+    if (doc["state"].is<String>()) {
+        _gameState = doc["state"].as<String>();
+
+        if (_gameState == "playing" && _gameStartTime == 0) {
+            _gameStartTime = millis();
         }
 
-        if (doc.containsKey("state")) {
-            _gameState = doc["state"].as<String>();
-
-            // If starting the game, record start time
-            if (_gameState == "playing" && _gameStartTime == 0) {
-                _gameStartTime = millis();
-            }
-
-            JsonDocument responseDoc;
-            responseDoc["success"] = true;
-            responseDoc["state"] = _gameState;
-
-            String response;
-            serializeJson(responseDoc, response);
-            _server->send(200, "application/json", response);
-        } else {
-            JsonDocument errorDoc;
-            errorDoc["error"] = "Missing 'state' field";
-            errorDoc["success"] = false;
-
-            String response;
-            serializeJson(errorDoc, response);
-            _server->send(400, "application/json", response);
-        }
-    } else {
-        JsonDocument errorDoc;
-        errorDoc["error"] = "No data received";
-        errorDoc["success"] = false;
+        JsonDocument responseDoc;
+        responseDoc["success"] = true;
+        responseDoc["state"] = _gameState;
 
         String response;
-        serializeJson(errorDoc, response);
-        _server->send(400, "application/json", response);
+        serializeJson(responseDoc, response);
+        request->send(200, "application/json", response);
+    } else {
+        request->send(400, "application/json", "{\"error\":\"Missing 'state' field\",\"success\":false}");
     }
 }
 
-void ApiGame::getScore() {
+void ApiGame::getScore(AsyncWebServerRequest *request) {
     JsonDocument doc;
 
     doc["score"] = _score;
@@ -132,57 +95,45 @@ void ApiGame::getScore() {
 
     String response;
     serializeJson(doc, response);
-
-    _server->send(200, "application/json", response);
+    request->send(200, "application/json", response);
 }
 
-void ApiGame::setScore() {
-    if (_server->hasArg("plain")) {
-        JsonDocument doc;
-        DeserializationError error = deserializeJson(doc, _server->arg("plain"));
+void ApiGame::setScore(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+    // Only process on the final chunk
+    if (index + len != total) return;
 
-        if (error) {
-            JsonDocument errorDoc;
-            errorDoc["error"] = "Invalid JSON";
-            errorDoc["success"] = false;
+    JsonDocument doc;
+    DeserializationError error = deserializeJson(doc, data, len);
 
-            String response;
-            serializeJson(errorDoc, response);
-            _server->send(400, "application/json", response);
-            return;
-        }
+    if (error) {
+        request->send(400, "application/json", "{\"error\":\"Invalid JSON\",\"success\":false}");
+        return;
+    }
 
-        if (doc.containsKey("score")) {
-            _score = doc["score"].as<int>();
+    if (doc["score"].is<int>()) {
+        _score = doc["score"].as<int>();
 
-            JsonDocument responseDoc;
-            responseDoc["success"] = true;
-            responseDoc["score"] = _score;
-
-            String response;
-            serializeJson(responseDoc, response);
-            _server->send(200, "application/json", response);
-        } else {
-            JsonDocument errorDoc;
-            errorDoc["error"] = "Missing 'score' field";
-            errorDoc["success"] = false;
-
-            String response;
-            serializeJson(errorDoc, response);
-            _server->send(400, "application/json", response);
-        }
-    } else {
-        JsonDocument errorDoc;
-        errorDoc["error"] = "No data received";
-        errorDoc["success"] = false;
+        JsonDocument responseDoc;
+        responseDoc["success"] = true;
+        responseDoc["score"] = _score;
 
         String response;
-        serializeJson(errorDoc, response);
-        _server->send(400, "application/json", response);
+        serializeJson(responseDoc, response);
+        request->send(200, "application/json", response);
+    } else {
+        request->send(400, "application/json", "{\"error\":\"Missing 'score' field\",\"success\":false}");
     }
 }
 
-void ApiGame::resetGame() {
+void ApiGame::getBattery(AsyncWebServerRequest *request) {
+    JsonDocument doc;
+    doc["battery"] = (int)constrain((global_battery_level * 100) / 1024, 0, 100);
+    String response;
+    serializeJson(doc, response);
+    request->send(200, "application/json", response);
+}
+
+void ApiGame::resetGame(AsyncWebServerRequest *request) {
     _gameState = "idle";
     _score = 0;
     _gameStartTime = 0;
@@ -195,7 +146,6 @@ void ApiGame::resetGame() {
 
     String response;
     serializeJson(doc, response);
-
-    _server->send(200, "application/json", response);
+    request->send(200, "application/json", response);
 }
 

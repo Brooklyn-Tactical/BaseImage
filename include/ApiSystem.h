@@ -3,41 +3,41 @@
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
-
-// Platform-specific includes
-#ifdef ESP32
-    #include <WebServer.h>
-#elif defined(ESP8266)
-    #include <ESP8266WebServer.h>
-    #define WebServer ESP8266WebServer
-#endif
+#include <ESPAsyncWebServer.h>
 
 class ApiSystem {
 public:
     // Constructor
     ApiSystem();
-    
+
     // Register API routes with the webserver
-    void registerRoutes(WebServer& server);
-    
+    void registerRoutes(AsyncWebServer& server);
+
 private:
-    // API endpoint handlers
-    static void handleGetInfo();
-    static void handleGetStatus();
-    static void handleRestart();
-    static void handleGetWiFiInfo();
-    
-    // Instance pointer for static callbacks
-    static ApiSystem* _instance;
-    
     // Helper methods
-    void getInfo();
-    void getStatus();
-    void restart();
-    void getWiFiInfo();
-    
-    // Reference to the server (set during registerRoutes)
-    WebServer* _server;
+    void getInfo(AsyncWebServerRequest *request);
+    void getStatus(AsyncWebServerRequest *request);
+    void restart(AsyncWebServerRequest *request);
+    void getBattery(AsyncWebServerRequest *request);
+
+    // Configuration endpoints
+    void getWiFiConfig(AsyncWebServerRequest *request);
+    void setWiFiConfig(AsyncWebServerRequest *request, const char *body);
+
+    void saveConfiguration();
+
+    // Generic file endpoints (lift/restore + filesystem.json manifest)
+    void getFiles(AsyncWebServerRequest *request);
+    void getFile(AsyncWebServerRequest *request);
+    void setFile(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total);
+
+    // Filesystem OTA
+    void otaFilesystemUpload(AsyncWebServerRequest *request, String filename,
+                             size_t index, uint8_t *data, size_t len, bool final);
+    void otaFilesystemDone(AsyncWebServerRequest *request);
+
+    // State for chunked file write
+    File _uploadFile;
 };
 
 #endif // API_SYSTEM_H
