@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "DNSServer.h"
+#include "HFSMEvents.h"
 #include <HFSM.h>
 #include <ESPAsyncWebServer.h>
 
@@ -22,12 +23,6 @@
 // Target hostname for captive portal
 #define TARGET_HOSTNAME "my.milsim.prop"
 
-// --- Event IDs ---
-static const uint16_t EVT_INITIALIZED    = 1;
-static const uint16_t EVT_SELECTED_ADMIN = 2;
-static const uint16_t EVT_SELECTED_GAME  = 3;
-static const uint16_t EVT_SETUP_DONE     = 4;
-
 // --- Forward declarations for types owned by main.cpp ---
 class ApiSystem;
 class ApiGame;
@@ -35,8 +30,6 @@ class ApiGame;
 // --- Globals defined in main.cpp ---
 extern AsyncWebServer server;
 extern DNSServer      dnsServer;
-extern const char*    ap_ssid;
-extern const char*    ap_password;
 extern IPAddress      apIP;
 extern ApiSystem      apiSystem;
 extern ApiGame        apiGame;
@@ -111,7 +104,7 @@ public:
 //  NetworkingFSM wrapper
 // ============================================================
 
-class NetworkingFSM {
+class NetworkingFSM : public IFsmDispatcher {
 public:
     NetworkingFSM();
 
@@ -121,8 +114,11 @@ public:
     /// Tick — call from loop().
     void update();
 
-    /// Forward an event into the state machine.
+    /// Forward an hfsm::Event into the state machine.
     void dispatch(const hfsm::Event& e);
+
+    /// IFsmDispatcher implementation — wraps dispatch(hfsm::Event).
+    void dispatch(uint16_t eventId) override;
 
 private:
     hfsm::StateMachine _machine;

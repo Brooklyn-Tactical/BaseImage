@@ -3,6 +3,7 @@
 #include "networking.h"
 #include "ApiSystem.h"
 #include "ApiGame.h"
+#include "BatteryService.h"
 #include <ESPAsyncWebServer.h>
 #include <EEPROM.h>
 
@@ -11,6 +12,9 @@ extern NetworkingFSM networkingFSM;
 
 // Device configuration (defined in src/main.cpp)
 extern JsonDocument global_configuration;
+
+// Battery service (defined in src/main.cpp)
+extern BatteryService batteryService;
 
 // Helper to dispatch an event into the global networking FSM
 namespace {
@@ -29,7 +33,7 @@ InitializeState::InitializeState(const char* name)
 
 void InitializeState::enter() {
     Serial.println(F("[Networking] InitializeState: nothing to do, transitioning to Idle"));
-    dispatchEvent(EVT_INITIALIZED);
+    dispatchEvent(EVT_NET_INITIALIZED);
 }
 
 IdleState::IdleState(const char* name)
@@ -87,12 +91,9 @@ void SetupAdminState::enter() {
 
     // Serve shared assets (fonts, images, etc.) from the single shared LittleFS directory
     server.serveStatic("/shared/", FILESYSTEM, "/web/shared/");
-    // .setFilter([](AsyncWebServerRequest *request) {
-    //     return request->host() == TARGET_HOSTNAME;
-    // });
 
     // Auto-transition to Run state once setup is done
-    dispatchEvent(EVT_SETUP_DONE);
+    dispatchEvent(EVT_NET_SETUP_DONE);
 }
 
 SetupGameState::SetupGameState(const char* name)
@@ -102,34 +103,36 @@ SetupGameState::SetupGameState(const char* name)
 void SetupGameState::enter() {
     Serial.println(F("[Networking] SetupGameState: configuring AP and registering game routes"));
 
+    const char* ssid     = global_configuration["ssid"]     | "BrooklynTactical";
+    const char* password = global_configuration["password"] | "password";
+    int         channel  = global_configuration["channel"]  | 1;
+
     WiFi.mode(WIFI_AP_STA);
     WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
-    bool apOk = WiFi.softAP(ap_ssid, ap_password);
+    bool apOk = WiFi.softAP(ssid, password, channel);
     if (!apOk) {
         Serial.println(F("[Networking] SetupGameState: AP failed to start"));
         return;
     }
-    Serial.print(F("[Networking] Game AP SSID: ")); Serial.println(ap_ssid);
+    Serial.print(F("[Networking] Game AP SSID: "));    Serial.println(ssid);
+    Serial.print(F("[Networking] Game AP channel: ")); Serial.println(channel);
     Serial.print(F("[Networking] Game AP IP:   ")); Serial.println(WiFi.softAPIP());
 
     // Register API routes first so they take precedence over static file routes
     apiGame.registerRoutes(server);
 
     // Serve the game UI from LittleFS at /web/game, rooted at '/'
-    server.serveStatic("/", FILESYSTEM, "/web/game/");
-    // .setFilter([](AsyncWebServerRequest *request) {
-    //     // Serial.print(F("Request host: ")); Serial.println(request->host());
-    //     return request->host() == TARGET_HOSTNAME;
-    // });
+    server.serveStatic("/", FILESYSTEM, "/web/game/").setDefaultFile("index.html").setFilter([](AsyncWebServerRequest *request) {
+        Serial.print(F("Request host from static[/]: ")); Serial.print(request->host());Serial.println(request->url());
+        return request->host() == TARGET_HOSTNAME;
+//        return true;
+    });
 
     // Serve shared assets (fonts, images, etc.) from the single shared LittleFS directory
     server.serveStatic("/shared/", FILESYSTEM, "/web/shared/");
-    // .setFilter([](AsyncWebServerRequest *request) {
-    //     return request->host() == TARGET_HOSTNAME;
-    // });
 
     // Auto-transition to Run state once setup is done
-    dispatchEvent(EVT_SETUP_DONE);
+    dispatchEvent(EVT_NET_SETUP_DONE);
 }
 
 RunState::RunState(const char* name)
@@ -169,6 +172,15 @@ void RunState::enter() {
         response->setCode(200);
         response->setLength();
         request->send(response);
+    });
+
+    // Battery level — common to both admin and game modes
+    server.on("/api/battery", HTTP_GET, [](AsyncWebServerRequest *request) {
+        JsonDocument doc;
+        doc["battery"] = batteryService.currentLevel();
+        String response;
+        serializeJson(doc, response);
+        request->send(200, "application/json", response);
     });
 
     // special handlers for redirecting all requests to the captive portal
@@ -280,21 +292,25 @@ void NetworkingFSM::dispatch(const hfsm::Event& e) {
     _machine.dispatch(e);
 }
 
+void NetworkingFSM::dispatch(uint16_t eventId) {
+    _machine.dispatch(hfsm::Event(eventId));
+}
+
 void NetworkingFSM::buildTransitions() {
-    // InitializeState: after EVT_INITIALIZED -> Idle
-    _initState._trans[0] = { EVT_INITIALIZED, nullptr, &_idleState };
+    // InitializeState: after EVT_NET_INITIALIZED -> Idle
+    _initState._trans[0] = { EVT_NET_INITIALIZED, nullptr, &_idleState };
     _initState._transCount = 1;
 
     // IdleState: external events select admin or game setup
-    _idleState._trans[0] = { EVT_SELECTED_ADMIN, nullptr, &_setupAdminState };
-    _idleState._trans[1] = { EVT_SELECTED_GAME,  nullptr, &_setupGameState  };
+    _idleState._trans[0] = { EVT_NET_SELECTED_ADMIN, nullptr, &_setupAdminState };
+    _idleState._trans[1] = { EVT_NET_SELECTED_GAME,  nullptr, &_setupGameState  };
     _idleState._transCount = 2;
 
     // Setup states: once setup is done, transition to Run
-    _setupAdminState._trans[0] = { EVT_SETUP_DONE, nullptr, &_runState };
+    _setupAdminState._trans[0] = { EVT_NET_SETUP_DONE, nullptr, &_runState };
     _setupAdminState._transCount = 1;
 
-    _setupGameState._trans[0] = { EVT_SETUP_DONE, nullptr, &_runState };
+    _setupGameState._trans[0] = { EVT_NET_SETUP_DONE, nullptr, &_runState };
     _setupGameState._transCount = 1;
 
     // RunState: terminal, no transitions

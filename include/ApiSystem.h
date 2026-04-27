@@ -18,7 +18,6 @@ private:
     void getInfo(AsyncWebServerRequest *request);
     void getStatus(AsyncWebServerRequest *request);
     void restart(AsyncWebServerRequest *request);
-    void getBattery(AsyncWebServerRequest *request);
 
     // Configuration endpoints
     void getWiFiConfig(AsyncWebServerRequest *request);

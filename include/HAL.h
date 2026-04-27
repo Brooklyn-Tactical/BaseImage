@@ -10,6 +10,10 @@
     #define BATTERY_PIN  A0 // The WeMos D1 Mini has a built-in voltage divider for the battery on A0 (0v-3.3v)
 #endif
 
+// Input pins
+#define PIN_MODE_SELECT 12
+
+
 // Universal pin definitions
 // ---------------------------------------------------------------------------------------------------------------------
 #ifdef LED_BUILTIN

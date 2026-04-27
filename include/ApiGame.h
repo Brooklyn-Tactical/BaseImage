@@ -7,26 +7,18 @@
 
 class ApiGame {
 public:
-    // Constructor
-    ApiGame();
-
     // Register API routes with the webserver
     void registerRoutes(AsyncWebServer& server);
-    
+
 private:
-    // Helper methods
+    // HTTP handler methods — delegate all game logic to gameFSM
     void getGameState(AsyncWebServerRequest *request);
     void setGameState(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total);
     void getScore(AsyncWebServerRequest *request);
-    void setScore(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total);
+    void addPoints(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total);
     void resetGame(AsyncWebServerRequest *request);
-    void getBattery(AsyncWebServerRequest *request);
-
-    // Game state variables
-
-    String _gameState;
-    int _score;
-    unsigned long _gameStartTime;
+    void pauseResume(AsyncWebServerRequest *request);
+    void setGameDuration(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total);
 };
 
 #endif // API_GAME_H

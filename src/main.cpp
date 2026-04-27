@@ -1,9 +1,12 @@
 #include <Arduino.h>
 #include <EEPROM.h>
+#include "HFSMEvents.h"
 #include "networking.h"
 #include "ApiSystem.h"
 #include "ApiGame.h"
 #include "HAL.h"
+#include "BatteryService.h"
+#include "game.h"
 
 #define FIRMWARE_VERSION_MAJOR 0
 #define FIRMWARE_VERSION_MINOR 1
@@ -11,10 +14,6 @@
 // ---------------------------------------------------------------------------
 // Global networking objects
 // ---------------------------------------------------------------------------
-
-// Access Point credentials
-const char* ap_ssid     = "ESP32-WebServer";
-const char* ap_password = "12345678";  // Minimum 8 characters
 
 // AP IP configuration (must match VALUE used by captive portal)
 //IPAddress apIP(192, 168, 144, 1);
@@ -32,8 +31,8 @@ ApiGame      apiGame;
 // HFSM wrapper
 NetworkingFSM networkingFSM;
 
-// Battery level: raw ADC-style value 0-1024 (0% - 100%)
-uint16_t global_battery_level = 512;
+// Battery service instance
+BatteryService batteryService;
 
 // Persistent device configuration loaded from /network.json at startup
 JsonDocument global_configuration;
@@ -43,17 +42,25 @@ bool         global_config_loaded = false;   // true only when the file parsed O
 bool ledState = false;
 
 bool modeSelected = false;
-unsigned long lastHeartbeat   = 0;
-unsigned long lastBatteryUpdate = 0;
+unsigned long lastHeartbeat = 0;
 
 
 void setup() {
   // Initialize serial communication
   Serial.begin(115200);
-  delay(1000);
+  delay(250);
 
   // Initialize the LED pin as an output
   pinMode(LED_PIN, OUTPUT);
+  pinMode(PIN_MODE_SELECT, INPUT_PULLUP);
+
+  // Initialize the BatteryService.
+  // Calibration values are loaded from EEPROM (addresses 4-20).
+  // They can be set via serial commands (B0, B1, B2, B3, B4).
+  IFsmDispatcher* batteryFsmListeners[] = { &networkingFSM, &gameFSM };
+  batteryService.init(BATTERY_PIN, 1000,
+                      batteryFsmListeners, 2,
+                      EVT_CORE_LOW_BATTERY);
 
   // ---------------------------------------------------------------------
   // Mount filesystem (LittleFS) before starting networking
@@ -94,7 +101,7 @@ void setup() {
     if (!global_config_loaded) {
       global_configuration["channel"]     = 1;
       global_configuration["ssid"]        = "BrooklynTactical";
-      global_configuration["password"]    = "12345678";
+      global_configuration["password"]    = "password";
       global_configuration["net_id"]      = "1";
       global_configuration["mode_id"]     = 0;
       global_configuration["device_id"]   = "0";
@@ -145,16 +152,17 @@ void setup() {
 //  server.serveStatic("/", FILESYSTEM, "/web");
 
   // ---------------------------------------------------------------------
-  // Start networking HFSM
+  // Start the FSMs
   // ---------------------------------------------------------------------
   networkingFSM.begin();
+  gameFSM.begin();
 
   // If network.json was missing or unparseable, go straight to admin mode
   // so the user can configure the device on first boot.
   if (!global_config_loaded) {
     Serial.println(F("[CFG] No valid config — auto-entering admin mode"));
     modeSelected = true;
-    networkingFSM.dispatch(EVT_SELECTED_ADMIN);
+    networkingFSM.dispatch(EVT_NET_SELECTED_ADMIN);
   }
 }
 
@@ -163,8 +171,15 @@ void setup() {
 // Accumulates characters until '\n', then dispatches on the 2-char prefix.
 //
 // Supported commands:
-//   HW:<float>   — write hardware version to EEPROM position 0
+//   HW:<float>   — write hardware version to EEPROM (float) position 0
 //                  e.g. "HW:1.5"
+//   BR:          - Read the current raw ADC battery level
+//   BL:          - Dump the configured battery level calibration points from EEPROM
+//   B0:          - Read the current ADC battery level and store it to EEPROM (int) as 0%
+//   B1:          - Read the current ADC battery level and store it to EEPROM (int) as 25%
+//   B2:          - Read the current ADC battery level and store it to EEPROM (int) as 50%
+//   B3:          - Read the current ADC battery level and store it to EEPROM (int) as 75%
+//   B4:          - Read the current ADC battery level and store it to EEPROM (int) as 100%
 // ---------------------------------------------------------------------------
 static void processSerialCommands() {
   static String serialLine;
@@ -194,18 +209,50 @@ static void processSerialCommands() {
           break;
         }
 
+        case (('B' << 8) | 'R'): {
+          int batVal = analogRead(BATTERY_PIN);
+          Serial.print(F("[CMD] Battery Level read: "));
+          Serial.println(batVal);
+          break;
+        }
+
+        case (('B' << 8) | 'L'): {   // "BL:" — dump calibration points from EEPROM
+          const int base = sizeof(float);
+          const int sz   = sizeof(int);
+          int addr_b4    = base + 4 * sz;  // highest address needed (addr 20)
+          EEPROM.begin(addr_b4 + sz);
+          int v0, v25, v50, v75, v100;
+          EEPROM.get(base + 0 * sz, v0);
+          EEPROM.get(base + 1 * sz, v25);
+          EEPROM.get(base + 2 * sz, v50);
+          EEPROM.get(base + 3 * sz, v75);
+          EEPROM.get(base + 4 * sz, v100);
+          EEPROM.end();
+          Serial.println(F("[CMD] Battery level calibration (raw ADC):"));
+          Serial.print(F("  B0 (  0%): ")); Serial.println(v0);
+          Serial.print(F("  B1 ( 25%): ")); Serial.println(v25);
+          Serial.print(F("  B2 ( 50%): ")); Serial.println(v50);
+          Serial.print(F("  B3 ( 75%): ")); Serial.println(v75);
+          Serial.print(F("  B4 (100%): ")); Serial.println(v100);
+          break;
+        }
+
+        case (('B' << 8) | '0'):
         case (('B' << 8) | '1'):
         case (('B' << 8) | '2'):
         case (('B' << 8) | '3'):
-        case (('B' << 8) | '4'): {   // "Bx" where x is 1-4
-          int addr = 5 + (cmd & 0xFF) * sizeof(int);
+        case (('B' << 8) | '4'): {   // "Bx" where x is 0-4 for battery levels [0%, 25%, 50%, 75%, 100%]
+          int index = (cmd & 0xFF) - '0';  // Convert ASCII to 0-4
+          int addr = sizeof(float) + index * sizeof(int); // offset by HW version's float entry
           int batVal = analogRead(BATTERY_PIN);
-          EEPROM.begin(sizeof(int));
+          EEPROM.begin(addr + sizeof(int));
           EEPROM.put(addr, batVal);
           EEPROM.commit();
           EEPROM.end();
-          Serial.print(F("[CMD] Bx value written: "));
+          Serial.print(F("[CMD] B")); Serial.print(index); Serial.print(F(" value written: "));
           Serial.println(batVal);
+          // update the ranges within the batteryService
+          batteryService.updateLevelRanges();
           break;
         }
 
@@ -225,34 +272,46 @@ void loop() {
   // Handle any pending serial commands
   processSerialCommands();
 
+  // Poll battery service for ADC updates
+  batteryService.update();
+
   // Drive the networking HFSM
   networkingFSM.update();
 
-  // Auto-select game mode after 5 seconds if not already selected
-  if (millis() > 5000 && !modeSelected) {
-    modeSelected = true;
-    networkingFSM.dispatch(EVT_SELECTED_ADMIN);
-//    networkingFSM.dispatch(EVT_SELECTED_GAME);
-  }
+  // Drive the game HFSM
+  gameFSM.update();
 
-  // Update battery level every 250ms with a random walk, clamped 0-1024
-  unsigned long now = millis();
-  if (now - lastBatteryUpdate >= 250) {
-    lastBatteryUpdate = now;
-    int32_t newLevel = (int32_t)global_battery_level + random(-250, 251);
-    global_battery_level = (uint16_t)constrain(newLevel, 0, 1024);
 
+  // ================================================================
+  // Select Game/Admin mode based on mode-select button being pressed
+  // within 5 seconds (for Admin) or not (for Game) after power on.
+  // ================================================================
+  if (!modeSelected) {
+    if (millis() > 5000) {
+      // Auto-select game mode after 5 seconds if not already selected
+      modeSelected = true;
+      networkingFSM.dispatch(EVT_NET_SELECTED_GAME);
+    } else if (digitalRead(PIN_MODE_SELECT) == LOW) {
+      // Switch to admin mode if the PIN_MODE_SELECT goes low
+      modeSelected = true;
+      networkingFSM.dispatch(EVT_NET_SELECTED_ADMIN);
+    }
   }
+  // ================================================================
 
-  // Heartbeat LED flash every second
-  if (now - lastHeartbeat >= 1000) {
-    lastHeartbeat = now;
-    ledState = true;
-    digitalWrite(LED_PIN, LOW);
-  }
-  if (ledState && now - lastHeartbeat >= 10) {
-    ledState = false;
-    digitalWrite(LED_PIN, HIGH);
-  }
+
+
+
+  // // Heartbeat LED flash every second
+  // unsigned long now = millis();
+  // if (now - lastHeartbeat >= 1000) {
+  //   lastHeartbeat = now;
+  //   ledState = true;
+  //   digitalWrite(LED_PIN, LOW);
+  // }
+  // if (ledState && now - lastHeartbeat >= 10) {
+  //   ledState = false;
+  //   digitalWrite(LED_PIN, HIGH);
+  // }
 
 }

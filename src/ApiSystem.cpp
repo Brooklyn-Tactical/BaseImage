@@ -20,7 +20,6 @@
     #include <ESPAsyncTCP.h>
 #endif
 
-extern uint16_t  global_battery_level;
 extern JsonDocument global_configuration;
 
 // Constructor
@@ -38,10 +37,6 @@ void ApiSystem::registerRoutes(AsyncWebServer& server) {
     server.on("/api/system/restart", HTTP_POST, [this](AsyncWebServerRequest *request) {
         this->restart(request);
     });
-    server.on("/api/battery", HTTP_GET, [this](AsyncWebServerRequest *request) {
-        this->getBattery(request);
-    });
-
     // WiFi config GET
     server.on("/api/system/wifi", HTTP_GET, [this](AsyncWebServerRequest *request) {
         Serial.println("WiFi config GET");
@@ -189,14 +184,6 @@ void ApiSystem::restart(AsyncWebServerRequest *request) {
 
     delay(1000);
     ESP.restart();
-}
-
-void ApiSystem::getBattery(AsyncWebServerRequest *request) {
-    JsonDocument doc;
-    doc["battery"] = (int)constrain((global_battery_level * 100) / 1024, 0, 100);
-    String response;
-    serializeJson(doc, response);
-    request->send(200, "application/json", response);
 }
 
 // ---------------------------------------------------------------------------
