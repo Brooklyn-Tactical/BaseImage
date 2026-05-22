@@ -1,0 +1,74 @@
+@startuml
+scale 1400 width
+  [*] --> Configure
+  Configure : Waiting for /api/game/start
+  Configure --> AwaitStart : EVT_GAME_API_START
+  Configure --> LowBattery : Battery is low
+
+  AwaitStart : Arming pin is inserted
+  AwaitStart : Light is off
+  AwaitStart : "rEdY" is displayed
+  AwaitStart --> AwaitArming : Remove arming pin (standby timer starts)
+  AwaitStart --> LowBattery : Battery is low
+
+  AwaitArming : Light is on and breathing
+  AwaitArming : "----" is displayed
+  AwaitArming --> Arming: Insert arming pin
+  AwaitArming --> DefenseWin : Standby timer expires
+  AwaitArming --> LowBattery : Battery is low
+
+  Arming: Timer displayed and counts down 10 seconds
+  Arming: Rapid beeping
+  Arming --> Armed : 10 seconds expired
+  Arming --> AwaitArming : Arming pin removed prematurely
+  Arming --> DefenseWin : Standby timer expires
+  Arming --> LowBattery : Battery is low
+
+  Armed: Countdown time is displayed and strobing
+  Armed: Constant tone sounding
+  Armed --> Countdown : Arming pin removed
+  Armed --> DefenseWin : Standby timer expires
+  Armed --> LowBattery : Battery is low
+
+  Countdown : Timer counts down
+  Countdown : Audio chirps every second
+  Countdown --> Disarming : Arming pin is inserted
+  Countdown --> OffenseWin : Game timer expires
+  Countdown --> OffenseWin : Standby timer expires
+  Countdown --> LowBattery : Battery is low
+
+  Disarming: 10 second countdown displayed
+  Disarming: Constant tone
+  Disarming: Light is strobing
+  Disarming --> Disarmed : 10 second expires
+  Disarming --> Countdown : Arming pin removed prematurely
+  Disarming --> OffenseWin : Standby timer expires
+  Disarming --> LowBattery : Battery is low
+
+  Disarmed: Light is off
+  Disarmed: "good" is displayed
+  Disarmed --> GameOver : Arming pin is removed (single arming)
+  Disarmed --> AwaitArming : Arming pin is removed (multiple armings)
+  Disarmed --> DefenseWin : Standby timer expires
+  Disarmed --> LowBattery : Battery is low
+
+  OffenseWin : Light is off
+  OffenseWin : "dEAd" is displayed
+  OffenseWin --> GameOver : Arming pin is removed
+  OffenseWin --> LowBattery : Battery is low
+
+  DefenseWin : Light is off
+  DefenseWin : "SAFE" is displayed
+  DefenseWin --> GameOver : Arming pin is removed
+  DefenseWin --> LowBattery : Battery is low
+
+  LowBattery : "bAtt" is displayed
+  LowBattery : Light is off
+  LowBattery : Quick tone chirps
+
+  GameOver : Awaiting reset
+  GameOver : "DonE" is displayed
+  GameOver : Light is off
+  GameOver --> AwaitStart: Arming pin is inserted and removed 2x quickly
+  GameOver --> LowBattery : Battery is low
+@enduml

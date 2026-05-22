@@ -26,7 +26,7 @@ export default function WiFiPage({ onSnackbar }) {
         setSaved(vals);
         setForm(vals);
       })
-      .catch(() => onSnackbar('Failed to load WiFi settings'));
+      .catch(() => onSnackbar('error', 'Failed to load WiFi settings'));
   }, []);
 
   const handleChange = (field) => (e) =>
@@ -45,14 +45,14 @@ export default function WiFiPage({ onSnackbar }) {
       });
       if (r.ok) {
         setSaved(form);
-        onSnackbar('WiFi settings saved');
+        onSnackbar('success', 'WiFi settings saved');
       } else {
         const body = await r.json().catch(() => ({}));
         const detail = body.error ? `: ${body.error}` : '';
-        onSnackbar(`Save failed [HTTP ${r.status}]${detail}`);
+        onSnackbar('error', `Save failed [HTTP ${r.status}]${detail}`);
       }
     } catch (err) {
-      onSnackbar(`Save failed: ${err.message}`);
+      onSnackbar('error', `Save failed: ${err.message}`);
     }
   };
 

@@ -1,0 +1,7 @@
+{
+  "countdownMins": 5,
+  "armDisarmSecs": 10,
+  "multipleArmings": false,
+  "standbyMins": 30,
+  "showStandbyTime": false
+}

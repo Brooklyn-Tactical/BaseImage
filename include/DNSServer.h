@@ -7,7 +7,6 @@
 
 #ifndef IANA_DNS_PORT
 #define IANA_DNS_PORT 53
-constexpr inline uint16_t kIanaDnsPort = IANA_DNS_PORT;
 #endif
 
 #define DNS_QR_QUERY    0

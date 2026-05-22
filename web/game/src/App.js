@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   CssBaseline, AppBar, Toolbar, IconButton, Typography,
   Drawer, Divider, Snackbar, Box, Button, Stack, TextField,
+  Card, CardContent, Collapse, Switch, InputAdornment, Alert,
 } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import BatteryFullIcon from '@mui/icons-material/BatteryFull';
 import Battery6BarIcon from '@mui/icons-material/Battery6Bar';
 import Battery5BarIcon from '@mui/icons-material/Battery5Bar';
@@ -55,23 +57,61 @@ function formatGameTime(totalSeconds) {
     : `${pad(mm)}:${pad(ss)}`;
 }
 
+// ── SettingRow — label + control + collapsible description ────────────────────
+function SettingRow({ label, description, expanded, onToggle, children }) {
+  return (
+    <Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', minHeight: 44, gap: 1 }}>
+        <Typography variant="body2" sx={{ flexGrow: 1 }}>{label}</Typography>
+        {children}
+        <IconButton size="small" onClick={onToggle} sx={{ p: 0.5 }}>
+          <ArrowDropDownIcon sx={{
+            transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 0.2s',
+          }} />
+        </IconButton>
+      </Box>
+      <Collapse in={expanded}>
+        <Typography variant="caption" color="text.secondary"
+          sx={{ display: 'block', px: 1, pb: 1.5, lineHeight: 1.5 }}>
+          {description}
+        </Typography>
+      </Collapse>
+    </Box>
+  );
+}
+
 function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [battery, setBattery]       = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMsg, setSnackbarMsg]   = useState('');
+  const [snackbarType, setSnackbarType] = useState('info');
   const [versions, setVersions]     = useState(null);
+  const [description, setDescription] = useState('');
   const [gameState, setGameState]   = useState(null);
-  const [score, setScore]           = useState(0);
   const [gameTime, setGameTime]     = useState(0);
   const [loading, setLoading]       = useState(true);
 
-  // Game duration — committed value in seconds; durMins/durSecs are the live input fields
-  const [durationSecs, setDurationSecs] = useState(60);
-  const [durMins, setDurMins]           = useState(1);
-  const [durSecs, setDurSecs]           = useState(0);
+  // ── Settings state ──────────────────────────────────────────────────────────
+  const [countdownMins,   setCountdownMins]   = useState(5);
+  const [armDisarmSecs,   setArmDisarmSecs]   = useState(10);
+  const [multipleArmings, setMultipleArmings] = useState(false);
+  const [standbyMins,     setStandbyMins]     = useState(30);
+  const [showStandbyTime, setShowStandbyTime] = useState(false);
 
-  const showSnackbar = (msg) => { setSnackbarMsg(msg); setSnackbarOpen(true); };
+  // Which description panels are open
+  const [expCountdown,       setExpCountdown]       = useState(false);
+  const [expArmDisarm,       setExpArmDisarm]        = useState(false);
+  const [expMultipleArmings, setExpMultipleArmings] = useState(false);
+  const [expStandby,         setExpStandby]          = useState(false);
+  const [expShowStandby,     setExpShowStandby]      = useState(false);
+
+  // Populated once from the first successful /api/game/state fetch; subsequent
+  // polls update gameState/gameTime/description but leave user-editable settings alone.
+  const settingsInitialized = useRef(false);
+
+  const showSnackbar = (type, msg) => { setSnackbarType(type); setSnackbarMsg(msg); setSnackbarOpen(true); };
 
   // ── Battery ──────────────────────────────────────────────────────────────
   const fetchBattery = async () => {
@@ -89,8 +129,8 @@ function App() {
 
   const handleBatteryClick = async () => {
     const pct = await fetchBattery();
-    if (pct >= 0) showSnackbar(`Battery Level: ${pct}%`);
-    else          showSnackbar('Failed to read battery level');
+    if (pct >= 0) showSnackbar('info', `Battery Level: ${pct}%`);
+    else          showSnackbar('error', 'Failed to read battery level');
   };
 
   // ── Versions ─────────────────────────────────────────────────────────────
@@ -106,13 +146,18 @@ function App() {
       const response = await fetch('/api/game/state');
       const data = await response.json();
       setGameState(data.state);
-      setScore(data.score);
       setGameTime(data.gameTime ?? 0);
-      if (data.duration != null) {
-        const d = Math.max(1, data.duration);
-        setDurationSecs(d);
-        setDurMins(Math.floor(d / 60));
-        setDurSecs(d % 60);
+      if (data.description != null) setDescription(data.description);
+      // Populate editable settings only on the first successful fetch so that
+      // subsequent 5-second polls do not overwrite values the user has changed.
+      if (!settingsInitialized.current) {
+        if (data.countdownSeconds != null)
+          setCountdownMins(Math.max(1, Math.round(data.countdownSeconds / 60)));
+        if (data.armDisarmSeconds  != null) setArmDisarmSecs(data.armDisarmSeconds);
+        if (data.multipleArmings   != null) setMultipleArmings(data.multipleArmings);
+        if (data.standbyMinutes    != null) setStandbyMins(data.standbyMinutes);
+        if (data.showStandbyTime   != null) setShowStandbyTime(data.showStandbyTime);
+        settingsInitialized.current = true;
       }
     } catch (error) {
       console.error('Error fetching game state:', error);
@@ -121,36 +166,29 @@ function App() {
     }
   };
 
-  // Called when either the minutes or seconds input changes.
-  // newMins / newSecs are the candidate values; the other field keeps its current value.
-  const handleDurationChange = async (newMins, newSecs) => {
-    const total = Math.max(0, newMins) * 60 + Math.max(0, newSecs);
-    // Optimistically update the display
-    setDurMins(newMins);
-    setDurSecs(newSecs);
-    try {
-      const response = await fetch('/api/game/duration', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ duration: total }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        // Commit confirmed value from server (server is the source of truth)
-        const confirmed = data.duration;
-        setDurationSecs(confirmed);
-        setDurMins(Math.floor(confirmed / 60));
-        setDurSecs(confirmed % 60);
-      } else {
-        // Roll back to last confirmed value
-        setDurMins(Math.floor(durationSecs / 60));
-        setDurSecs(durationSecs % 60);
-      }
-    } catch {
-      // Network error — roll back
-      setDurMins(Math.floor(durationSecs / 60));
-      setDurSecs(durationSecs % 60);
-    }
+
+  // ── Settings handlers — update local state only; values are sent on "Start Game" ──
+  const handleCountdownMins = (raw) => {
+    const val = Math.max(1, Math.min(99, parseInt(raw, 10) || 1));
+    setCountdownMins(val);
+  };
+
+  const handleArmDisarmSecs = (raw) => {
+    const val = Math.max(5, Math.min(99, parseInt(raw, 10) || 5));
+    setArmDisarmSecs(val);
+  };
+
+  const handleMultipleArmings = (enabled) => {
+    setMultipleArmings(enabled);
+  };
+
+  const handleStandbyMins = (raw) => {
+    const val = Math.max(0, Math.min(199, parseInt(raw, 10) || 0));
+    setStandbyMins(val);
+  };
+
+  const handleShowStandbyTime = (enabled) => {
+    setShowStandbyTime(enabled);
   };
 
   useEffect(() => {
@@ -165,51 +203,70 @@ function App() {
     };
   }, []);
 
-  const handlePauseResume = async () => {
-    try {
-      const response = await fetch('/api/game/pauseResume', { method: 'POST' });
-      const data = await response.json();
-      if (data.success) setGameState(data.state);
-    } catch (error) {
-      console.error('Error toggling pause/resume:', error);
-    }
-  };
-
   const handleStartGame = async () => {
     try {
-      const response = await fetch('/api/game/state', {
+      // Send all settings and trigger FSM transition in a single call
+      const response = await fetch('/api/game/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ state: 'playing' }),
+        body: JSON.stringify({
+          countdownSeconds: countdownMins * 60,
+          armDisarmSeconds: armDisarmSecs,
+          multipleArmings,
+          standbyMinutes:   standbyMins,
+          showStandbyTime,
+        }),
       });
       const data = await response.json();
-      if (data.success) setGameState('playing');
+      if (data.success) {
+        setGameState(data.state);
+        showSnackbar('success', 'New game started');
+      }
     } catch (error) {
       console.error('Error starting game:', error);
+      showSnackbar('error', 'Error starting game!');
     }
   };
 
-  const handleResetGame = async () => {
+  const handleSaveDefaults = async () => {
     try {
-      const response = await fetch('/api/game/reset', { method: 'POST' });
-      const data = await response.json();
-      if (data.success) { setGameState(data.state); setScore(data.score); }
-    } catch (error) {
-      console.error('Error resetting game:', error);
-    }
-  };
-
-  const handleAddPoints = async () => {
-    try {
-      const response = await fetch('/api/game/addPoints', {
+      const response = await fetch('/api/game/defaults', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ points: 10 }),
+        body: JSON.stringify({
+          countdownMins,
+          armDisarmSecs,
+          multipleArmings,
+          standbyMins,
+          showStandbyTime,
+        }),
       });
       const data = await response.json();
-      if (data.success) setScore(data.score);
+      if (data.success !== false) showSnackbar('success', 'Defaults saved');
+      else showSnackbar('error', 'Failed to save defaults');
     } catch (error) {
-      console.error('Error updating score:', error);
+      console.error('Error saving defaults:', error);
+      showSnackbar('error', 'Failed to save defaults');
+    }
+  };
+
+  const handleLoadDefaults = async () => {
+    try {
+      const response = await fetch('/api/game/defaults');
+      if (!response.ok) {
+        showSnackbar('info', 'No saved defaults found');
+        return;
+      }
+      const data = await response.json();
+      if (data.countdownMins   != null) handleCountdownMins(data.countdownMins);
+      if (data.armDisarmSecs   != null) handleArmDisarmSecs(data.armDisarmSecs);
+      if (data.multipleArmings != null) handleMultipleArmings(data.multipleArmings);
+      if (data.standbyMins     != null) handleStandbyMins(data.standbyMins);
+      if (data.showStandbyTime != null) handleShowStandbyTime(data.showStandbyTime);
+      showSnackbar('success', 'Defaults loaded');
+    } catch (error) {
+      console.error('Error loading defaults:', error);
+      showSnackbar('error', 'Failed to load defaults');
     }
   };
 
@@ -229,7 +286,7 @@ function App() {
             <InfoOutlinedIcon />
           </IconButton>
           <Typography variant="h6" sx={{ flexGrow: 1, textAlign: 'center' }}>
-            Game Prop
+            {description || 'Bio-Vial Prop'}
           </Typography>
           <IconButton color="inherit" edge="end" onClick={handleBatteryClick}>
             <BattIcon />
@@ -265,6 +322,23 @@ function App() {
             </ul>
           </Typography>
         </Box>
+        <Box sx={{ mt: 'auto', p: 2, borderTop: 1, borderColor: 'divider' }}>
+          <Box
+              component="img"
+              src="/shared/BT-logo.jpg"
+              alt="Brooklyn Tactical Logo"
+              sx={{ width: '100%', maxWidth: 360, my: 2 }}
+          />
+          <Typography variant="caption" color="text.secondary" display="block" align="center">
+            H/W Version: {hw}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" display="block" align="center">
+            S/W Version: {fw}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" display="block" align="center">
+            FileSystem Version: {fs}
+          </Typography>
+        </Box>
       </Drawer>
 
       {/* ── Main Content ── */}
@@ -273,7 +347,7 @@ function App() {
         {/* Versions section — from HomePage */}
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4, px: 2 }}>
           <Typography variant="h4" align="center" fontWeight="bold" gutterBottom>
-            Game Prop
+            Bio-Vial
           </Typography>
           <Typography variant="h6" align="center" color="text.secondary" gutterBottom>
             by
@@ -281,10 +355,6 @@ function App() {
           <Typography variant="h4" align="center" fontWeight="bold" gutterBottom>
             Brooklyn Tactical
           </Typography>
-          <Divider sx={{ width: '100%', maxWidth: 360, my: 3 }} />
-          <Typography variant="body1" align="center">H/W Version: {hw}</Typography>
-          <Typography variant="body1" align="center">S/W Version: {fw}</Typography>
-          <Typography variant="body1" align="center">FS Version: {fs}</Typography>
         </Box>
 
         <Divider sx={{ maxWidth: 360, mx: 'auto', my: 4 }} />
@@ -296,53 +366,125 @@ function App() {
           ) : (
             <>
               <Box sx={{ mb: 3, textAlign: 'center' }}>
-                <Typography variant="body1"><strong>State:</strong> {gameState || 'idle'}</Typography>
-                <Typography variant="body1"><strong>Score:</strong> {score}</Typography>
-                <Typography variant="body1"><strong>Game Time:</strong> {formatGameTime(gameTime)}</Typography>
+                <Typography variant="body1"><strong>State:</strong> {gameState || 'configure'}</Typography>
+                {['await_arming', 'arming', 'armed', 'countdown', 'disarming', 'disarmed'].includes(gameState) && (
+                  <Typography variant="body1"><strong>Game Time:</strong> {formatGameTime(gameTime)}</Typography>
+                )}
               </Box>
 
-              {/* Game Duration configuration — editable only in idle/configure state */}
-              <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography variant="body1" sx={{ mr: 1 }}><strong>Game Duration:</strong></Typography>
-                <TextField
-                  type="number"
-                  label="mm"
-                  value={durMins}
-                  disabled={gameState !== 'idle' && gameState !== null}
-                  onChange={(e) => handleDurationChange(Math.max(0, parseInt(e.target.value, 10) || 0), durSecs)}
-                  inputProps={{ min: 0, max: 99, step: 1 }}
-                  sx={{ width: 72 }}
-                  size="small"
-                />
-                <Typography variant="body1">:</Typography>
-                <TextField
-                  type="number"
-                  label="ss"
-                  value={durSecs}
-                  disabled={gameState !== 'idle' && gameState !== null}
-                  onChange={(e) => handleDurationChange(durMins, Math.min(59, Math.max(0, parseInt(e.target.value, 10) || 0)))}
-                  inputProps={{ min: 0, max: 59, step: 1 }}
-                  sx={{ width: 72 }}
-                  size="small"
-                />
-              </Box>
-              <Stack spacing={1.5} sx={{ width: '100%', maxWidth: 320 }}>
+              {/* ── Game Settings Card ── */}
+              <Card variant="outlined" sx={{ width: '100%', maxWidth: 360, mb: 3 }}>
+                <CardContent sx={{ pb: '12px !important' }}>
+                  <Typography variant="subtitle2" sx={{ mb: 1 }}>Game Settings</Typography>
+                  <Divider sx={{ mb: 0.5 }} />
+                  <SettingRow
+                    label="Countdown Time"
+                    description="The main game countdown timer. Once the vial is armed and activated (pin removed), this timer counts down to zero. If it reaches zero before the vial is disarmed, the vial is released. Range: 1–99 minutes."
+                    expanded={expCountdown}
+                    onToggle={() => setExpCountdown(v => !v)}
+                  >
+                    <TextField
+                      type="number"
+                      value={countdownMins}
+                      onChange={(e) => setCountdownMins(e.target.value)}
+                      onBlur={(e) => handleCountdownMins(e.target.value)}
+                      inputProps={{ min: 1, max: 99, step: 1 }}
+                      InputProps={{ endAdornment: <InputAdornment position="end">min</InputAdornment> }}
+                      sx={{ width: 105 }}
+                      size="small"
+                    />
+                  </SettingRow>
+                  <Divider sx={{ my: 0.5 }} />
+                  <SettingRow
+                    label="Arm / Disarm Time"
+                    description="The duration of the arming and disarming sequences. Players must keep the pin inserted (to disarm) or removed (to arm) for this many seconds to complete the action. Pulling or reinserting the pin before the countdown completes cancels the sequence. Range: 5–99 seconds."
+                    expanded={expArmDisarm}
+                    onToggle={() => setExpArmDisarm(v => !v)}
+                  >
+                    <TextField
+                      type="number"
+                      value={armDisarmSecs}
+                      onChange={(e) => setArmDisarmSecs(e.target.value)}
+                      onBlur={(e) => handleArmDisarmSecs(e.target.value)}
+                      inputProps={{ min: 5, max: 99, step: 1 }}
+                      InputProps={{ endAdornment: <InputAdornment position="end">sec</InputAdornment> }}
+                      sx={{ width: 105 }}
+                      size="small"
+                    />
+                  </SettingRow>
+                  <Divider sx={{ my: 0.5 }} />
+                  <SettingRow
+                    label="Multiple Armings"
+                    description="When enabled, successfully disarming the vial returns it to standby — it can be re-armed and disarmed again within the same round. When disabled, a successful disarm immediately ends the round."
+                    expanded={expMultipleArmings}
+                    onToggle={() => setExpMultipleArmings(v => !v)}
+                  >
+                    <Switch
+                      checked={multipleArmings}
+                      onChange={(e) => handleMultipleArmings(e.target.checked)}
+                      size="small"
+                    />
+                  </SettingRow>
+                  <Divider sx={{ my: 0.5 }} />
+                  <SettingRow
+                    label="Standby Time"
+                    description="The maximum time the vial will wait for players to interact with it before taking an automatic action. Range: 0–199 minutes (0 disables the standby countdown)."
+                    expanded={expStandby}
+                    onToggle={() => setExpStandby(v => !v)}
+                  >
+                    <TextField
+                      type="number"
+                      value={standbyMins}
+                      onChange={(e) => setStandbyMins(e.target.value)}
+                      onBlur={(e) => handleStandbyMins(e.target.value)}
+                      inputProps={{ min: 0, max: 199, step: 1 }}
+                      InputProps={{ endAdornment: <InputAdornment position="end">min</InputAdornment> }}
+                      sx={{ width: 105 }}
+                      size="small"
+                    />
+                  </SettingRow>
+                  <Divider sx={{ my: 0.5 }} />
+                  <SettingRow
+                    label="Show Standby Time"
+                    description="When enabled, the vial's LED display shows the remaining standby time while waiting for player interaction."
+                    expanded={expShowStandby}
+                    onToggle={() => setExpShowStandby(v => !v)}
+                  >
+                    <Switch
+                      checked={showStandbyTime}
+                      onChange={(e) => handleShowStandbyTime(e.target.checked)}
+                      size="small"
+                    />
+                  </SettingRow>
+                </CardContent>
+              </Card>
+
+              {/* ── Game control buttons ── */}
+              <Stack spacing={1.5} sx={{ width: '100%', maxWidth: 360 }}>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button
+                    variant="outlined"
+                    sx={{ flex: 1 }}
+                    onClick={handleLoadDefaults}
+                  >
+                    Load
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    sx={{ flex: 1 }}
+                    onClick={handleSaveDefaults}
+                  >
+                    Save
+                  </Button>
+                </Box>
                 <Button
                   variant="contained"
+                  color="success"
                   fullWidth
-                  onClick={handlePauseResume}
-                  disabled={gameState !== 'playing' && gameState !== 'paused'}
+                  disabled={gameState === 'lowbattery'}
+                  onClick={handleStartGame}
                 >
-                  {gameState === 'paused' ? 'Resume' : 'Pause'}
-                </Button>
-                <Button variant="contained" color="success" fullWidth onClick={handleStartGame}>
-                  Start Game
-                </Button>
-                <Button variant="contained" color="warning" fullWidth onClick={handleResetGame}>
-                  Reset Game
-                </Button>
-                <Button variant="outlined" fullWidth onClick={handleAddPoints}>
-                  Add 10 Points
+                  {gameState === 'configure' || !gameState ? 'Start Game' : 'Restart Game'}
                 </Button>
               </Stack>
             </>
@@ -350,14 +492,17 @@ function App() {
         </Box>
       </Box>
 
-      {/* ── Battery Snackbar ── */}
+      {/* ── Snackbar ── */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={5000}
         onClose={() => setSnackbarOpen(false)}
-        message={snackbarMsg}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      />
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarType} sx={{ width: '100%', border: '1px solid black' }}>
+          {snackbarMsg}
+        </Alert>
+      </Snackbar>
     </ThemeProvider>
   );
 }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   CssBaseline, AppBar, Toolbar, IconButton, Typography,
   Drawer, List, ListItem, ListItemButton, ListItemText,
-  ListSubheader, Divider, Snackbar, Box,
+  ListSubheader, Divider, Snackbar, Box, Alert,
 } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -19,7 +19,8 @@ import BatteryAlertIcon from '@mui/icons-material/BatteryAlert';
 import HomePage from './pages/HomePage';
 import WiFiPage from './pages/WiFiPage';
 import MeshPage from './pages/MeshPage';
-import OtaPage from './pages/OtaPage';
+import FilesystemPage from './pages/FilesystemPage';
+import DiagnosticsPage from './pages/DiagnosticsPage';
 
 const BATTERY_ICONS = [
   BatteryFullIcon, Battery6BarIcon, Battery5BarIcon, Battery4BarIcon,
@@ -53,7 +54,8 @@ const DRAWER_WIDTH = 240;
 
 const NAV_GROUPS = [
   { group: 'Network', items: [{ label: 'WiFi', page: 'wifi' }, { label: 'Mesh', page: 'mesh' }] },
-  { group: 'OTA Update',     items: [{ label: 'Firmware', page: 'firmware' }, { label: 'Filesystem', page: 'filesystem' }] },
+  { group: 'OTA Update',     items: [{ label: 'Filesystem', page: 'filesystem' }] },
+  { group: 'Diagnostics',    items: [{ label: 'Diagnostics', page: 'diagnostics' }] },
 ];
 
 function App() {
@@ -62,8 +64,9 @@ function App() {
   const [battery, setBattery] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMsg, setSnackbarMsg] = useState('');
+  const [snackbarType, setSnackbarType] = useState('info');
 
-  const showSnackbar = (msg) => { setSnackbarMsg(msg); setSnackbarOpen(true); };
+  const showSnackbar = (type, msg) => { setSnackbarType(type); setSnackbarMsg(msg); setSnackbarOpen(true); };
 
   const fetchBattery = async () => {
     try {
@@ -88,9 +91,9 @@ function App() {
   const handleBatteryClick = async () => {
     const pct = await fetchBattery();
     if (pct >= 0) {
-      showSnackbar(`Battery Level: ${pct}%`);
+      showSnackbar('info', `Battery Level: ${pct}%`);
     } else {
-      showSnackbar('Failed to read battery level');
+      showSnackbar('error', 'Failed to read battery level');
     }
   };
 
@@ -99,11 +102,11 @@ function App() {
   const BattIcon = getBatteryIcon(battery);
 
   const pageMap = {
-    home:       <HomePage />,
-    wifi:       <WiFiPage onSnackbar={showSnackbar} />,
-    mesh:       <MeshPage onSnackbar={showSnackbar} />,
-    firmware:   <OtaPage type="firmware" />,
-    filesystem: <OtaPage type="filesystem" />,
+    home:        <HomePage />,
+    wifi:        <WiFiPage onSnackbar={showSnackbar} />,
+    mesh:        <MeshPage onSnackbar={showSnackbar} />,
+    filesystem:  <FilesystemPage />,
+    diagnostics: <DiagnosticsPage onSnackbar={showSnackbar} />,
   };
 
   return (
@@ -162,14 +165,17 @@ function App() {
         {pageMap[page]}
       </Box>
 
-      {/* ── Battery Snackbar ── */}
+      {/* ── Snackbar ── */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={5000}
         onClose={() => setSnackbarOpen(false)}
-        message={snackbarMsg}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      />
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarType} sx={{ width: '100%', border: '1px solid black' }}>
+          {snackbarMsg}
+        </Alert>
+      </Snackbar>
     </ThemeProvider>
   );
 }

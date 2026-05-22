@@ -6,6 +6,11 @@
 #include "BatteryService.h"
 #include <ESPAsyncWebServer.h>
 #include <EEPROM.h>
+#include <HAL.h>
+#include <TM1637TinyDisplay.h>
+extern TM1637TinyDisplay global_disp;
+const PROGMEM char LEDSTR_SYS[] = "SyS";
+const PROGMEM char LEDSTR_CONFIG[] = "conF";
 
 // Global HFSM instance (defined in src/main.cpp)
 extern NetworkingFSM networkingFSM;
@@ -80,9 +85,8 @@ void SetupAdminState::enter() {
     // Register API routes first so they take precedence over static file routes
     apiSystem.registerRoutes(server);
 
-    // Serve the admin/system UI from LittleFS at /web/system, rooted at '/'
-    // Note: on current cores, serveStatic() returns void and uses its
-    // internal default index file (typically "index.html").
+    // Serve the admin/system UI from LittleFS at /web/system, rooted at '/'.
+    // Restrict the root handler to requests that use the captive-portal host.
     server.serveStatic("/", FILESYSTEM, "/web/system/").setDefaultFile("index.html").setFilter([](AsyncWebServerRequest *request) {
         Serial.print(F("Request host from static[/]: ")); Serial.print(request->host());Serial.println(request->url());
         return request->host() == TARGET_HOSTNAME;
@@ -91,6 +95,10 @@ void SetupAdminState::enter() {
 
     // Serve shared assets (fonts, images, etc.) from the single shared LittleFS directory
     server.serveStatic("/shared/", FILESYSTEM, "/web/shared/");
+
+    // set LED display to "sys"
+    global_disp.setBrightness(1);
+    global_disp.showString_P(LEDSTR_SYS);
 
     // Auto-transition to Run state once setup is done
     dispatchEvent(EVT_NET_SETUP_DONE);
@@ -131,6 +139,10 @@ void SetupGameState::enter() {
     // Serve shared assets (fonts, images, etc.) from the single shared LittleFS directory
     server.serveStatic("/shared/", FILESYSTEM, "/web/shared/");
 
+    // set LED display to "cOnF"
+    global_disp.setBrightness(1);
+    global_disp.showString_P(LEDSTR_CONFIG);
+
     // Auto-transition to Run state once setup is done
     dispatchEvent(EVT_NET_SETUP_DONE);
 }
@@ -141,6 +153,10 @@ RunState::RunState(const char* name)
 
 void RunState::enter() {
     Serial.println(F("[Networking] RunState: entering main run loop"));
+
+    // audio tone to indicate mode selected
+    tone(PIN_PIEZO_A,2500, 250);
+    tone(PIN_PIEZO_B,2800, 250);
 
     // Version endpoint — hw from EEPROM, fw from build defines, fs from filesystem.json
     server.on("/api/versions", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -226,8 +242,6 @@ void RunState::enter() {
             request->send(404);
         }
     });
-    // .setFilter([](AsyncWebServerRequest *request) {
-    // });
 
 
     // Domains to block — answered with 0.0.0.0 instead of the AP IP.
@@ -255,7 +269,6 @@ void RunState::enter() {
     server.begin();
     Serial.print(F("[Networking] HTTP server started — connect to http://"));
     Serial.println(F(TARGET_HOSTNAME));
-
 }
 
 void RunState::update() {

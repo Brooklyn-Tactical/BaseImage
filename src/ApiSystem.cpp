@@ -1,5 +1,11 @@
 #include "ApiSystem.h"
 #include "networking.h"   // provides FILESYSTEM macro and LittleFS
+#include <ArduinoJson.h>
+#include <Bounce2.h>
+#include <FadeLed.h>
+#include <HAL.h>
+#include <TM1637TinyDisplay.h>
+
 
 // The Update/Updater global object has different header names per platform
 #ifdef ESP32
@@ -21,6 +27,9 @@
 #endif
 
 extern JsonDocument global_configuration;
+extern Bounce2::Button global_arming_button;
+extern FadeLed MainLED;
+extern TM1637TinyDisplay global_disp;
 
 // Constructor
 ApiSystem::ApiSystem() {
@@ -120,6 +129,89 @@ void ApiSystem::registerRoutes(AsyncWebServer& server) {
             this->otaFilesystemUpload(request, filename, index, data, len, final);
         }
     );
+
+    // Diagnostics: LED bar on/off (POST-only)
+    static AsyncCallbackJsonWebHandler *diagLedHandler = new AsyncCallbackJsonWebHandler("/api/system/diag/led");
+    diagLedHandler->setMaxContentLength(64);
+    diagLedHandler->setMethod(HTTP_POST);
+    diagLedHandler->onRequest([](AsyncWebServerRequest *request, JsonVariant &json) {
+        bool on = json["on"] | false;
+        Serial.print(F("[Diag] LED set: "));
+        MainLED.setTime(1000, true);
+        if (on) {
+            MainLED.set(255);
+            Serial.println(F("on"));
+        } else {
+            MainLED.set(0);
+            Serial.println(F("off"));
+        }
+        request->send(200, "application/json", "{\"success\":true}");
+    });
+    server.addHandler(diagLedHandler);
+
+    // Diagnostics: LED display on/off (POST-only)
+    static AsyncCallbackJsonWebHandler *diagDisplayHandler = new AsyncCallbackJsonWebHandler("/api/system/diag/display");
+    diagDisplayHandler->setMaxContentLength(64);
+    diagDisplayHandler->setMethod(HTTP_POST);
+    diagDisplayHandler->onRequest([](AsyncWebServerRequest *request, JsonVariant &json) {
+        uint8_t dots = 0b01010000;
+        bool on = json["on"] | false;
+        Serial.print(F("[Diag] Display set: "));
+        if (on) {
+            global_disp.setBrightness(6);
+            global_disp.showNumberDec(88, dots, true, 2, 0);
+            global_disp.showNumberDec(88, dots, true, 2, 2);
+            Serial.println(F("on"));
+        } else {
+            global_disp.showString("");
+            Serial.println(F("off"));
+        }
+        request->send(200, "application/json", "{\"success\":true}");
+    });
+    server.addHandler(diagDisplayHandler);
+
+    // Diagnostics: Speaker beep
+    server.on("/api/system/diag/beep", HTTP_POST, [](AsyncWebServerRequest *request) {
+        Serial.println(F("[Diag] Beep"));
+        tone(PIN_PIEZO_A,2500, 250);
+        tone(PIN_PIEZO_B,2800, 250);
+        request->send(200, "application/json", "{\"success\":true}");
+    });
+
+    // Diagnostics: Arm/Disarm status
+    server.on("/api/system/diag/armstatus", HTTP_GET, [](AsyncWebServerRequest *request) {
+        Serial.print(F("[Diag] Read Arm/Disarm -> "));
+        if (global_arming_button.isPressed()) {
+            Serial.println(F("Detected"));
+            request->send(200, "application/json", F("{\"status\":\"Detected\"}"));
+        } else {
+            Serial.println(F("Not Detected"));
+            request->send(200, "application/json", F("{\"status\":\"Not Detected\"}"));
+        }
+    });
+
+    // Diagnostics: EEPROM read (hardcoded; size matches firmware layout: HW float + 5 calib ints)
+    server.on("/api/system/diag/eeprom", HTTP_GET, [](AsyncWebServerRequest *request) {
+        const size_t size = sizeof(float) + 5 * sizeof(int);
+        AsyncJsonResponse *response = new AsyncJsonResponse();
+        JsonObject root = response->getRoot().to<JsonObject>();
+        root["size"] = (uint32_t)size;
+        root["hex"]  = "0102030405060708090A0B0C0D0E0F101112131415161718";
+        response->setCode(200);
+        response->setLength();
+        request->send(response);
+    });
+
+    // Diagnostics: EEPROM write
+    static AsyncCallbackJsonWebHandler *diagEepromHandler = new AsyncCallbackJsonWebHandler("/api/system/diag/eeprom");
+    diagEepromHandler->setMaxContentLength(256);
+    diagEepromHandler->setMethod(HTTP_POST);
+    diagEepromHandler->onRequest([](AsyncWebServerRequest *request, JsonVariant &json) {
+        const char *hex = json["hex"] | "";
+        Serial.print(F("[Diag] EEPROM write: ")); Serial.println(hex);
+        request->send(200, "application/json", "{\"success\":true}");
+    });
+    server.addHandler(diagEepromHandler);
 
     Serial.println("ApiSystem routes registered");
 }

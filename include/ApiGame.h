@@ -11,14 +11,12 @@ public:
     void registerRoutes(AsyncWebServer& server);
 
 private:
-    // HTTP handler methods — delegate all game logic to gameFSM
+    // HTTP handlers for game state plus persisted default settings.
     void getGameState(AsyncWebServerRequest *request);
-    void setGameState(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total);
-    void getScore(AsyncWebServerRequest *request);
-    void addPoints(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total);
-    void resetGame(AsyncWebServerRequest *request);
-    void pauseResume(AsyncWebServerRequest *request);
-    void setGameDuration(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total);
+    void startGame(AsyncWebServerRequest *request, JsonVariant &json);
+
+    void getGameDefaults(AsyncWebServerRequest *request);
+    void setGameDefaults(AsyncWebServerRequest *request, JsonVariant &json);
 };
 
 #endif // API_GAME_H

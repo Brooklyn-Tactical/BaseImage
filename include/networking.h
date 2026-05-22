@@ -38,8 +38,7 @@ extern ApiGame        apiGame;
 //  State classes
 // ============================================================
 
-/// Sets up WiFi AP, DNS, mDNS, onNotFound handler, and starts the server.
-/// Auto-dispatches EVT_INITIALIZED on completion.
+/// Initial no-op state; immediately dispatches EVT_NET_INITIALIZED.
 class InitializeState : public hfsm::State {
 public:
     InitializeState(const char* name = "Initialize");
@@ -52,7 +51,7 @@ public:
     uint8_t          _transCount = 0;
 };
 
-/// Waits for an external event (button press) to choose admin or game mode.
+/// Waits for an external mode-selection event to choose admin or game setup.
 class IdleState : public hfsm::State {
 public:
     IdleState(const char* name = "Idle");
@@ -66,7 +65,8 @@ public:
     uint8_t          _transCount = 0;
 };
 
-/// Registers ApiSystem routes, then auto-dispatches EVT_SETUP_DONE.
+/// Configures the recovery/admin AP, registers ApiSystem routes, and
+/// auto-dispatches EVT_NET_SETUP_DONE.
 class SetupAdminState : public hfsm::State {
 public:
     SetupAdminState(const char* name = "SetupAdmin");
@@ -79,7 +79,8 @@ public:
     uint8_t          _transCount = 0;
 };
 
-/// Registers ApiGame routes, then auto-dispatches EVT_SETUP_DONE.
+/// Configures the game AP from saved settings, registers ApiGame routes, and
+/// auto-dispatches EVT_NET_SETUP_DONE.
 class SetupGameState : public hfsm::State {
 public:
     SetupGameState(const char* name = "SetupGame");
@@ -92,7 +93,7 @@ public:
     uint8_t          _transCount = 0;
 };
 
-/// Terminal run state — polls DNS and handles HTTP clients.
+/// Terminal run state — starts shared services and polls DNS.
 class RunState : public hfsm::State {
 public:
     RunState(const char* name = "Run");

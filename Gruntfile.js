@@ -11,7 +11,7 @@ module.exports = function(grunt) {
     // Clean task - removes old build files
     clean: {
       dist: ['dist'],
-      data: ['data/web'],
+      data: ['data/web/**/*'],
     },
     
     // Webpack task - builds React applications

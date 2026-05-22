@@ -22,7 +22,10 @@ public:
 // Events that can be dispatched to multiple state machines
 // or represent system-wide conditions
 
-static const uint16_t EVT_CORE_LOW_BATTERY = 1;
+static const uint16_t EVT_CORE_LOW_BATTERY  = 1;
+static const uint16_t EVT_CORE_PIN_INSERTED = 2;
+static const uint16_t EVT_CORE_PIN_REMOVED  = 3;
+static const uint16_t EVT_CORE_PIN_TOGGLED  = 4;  // rapid toggle sequence detected (GameOver reset)
 
 // ============================================================
 // Networking FSM Events (100-199)
@@ -39,10 +42,9 @@ static const uint16_t EVT_NET_SETUP_DONE     = 103;
 // ============================================================
 // Events specific to the game state machine
 
-static const uint16_t EVT_GAME_API_START        = 200;  // API requested game start
-static const uint16_t EVT_GAME_API_END          = 201;  // API requested game end
-static const uint16_t EVT_GAME_TIMER_END        = 202;  // Game duration timer expired
-static const uint16_t EVT_GAME_API_PAUSE_RESUME = 203;  // API requested pause/resume toggle
+static const uint16_t EVT_GAME_API_START     = 200;  // API requested game start
+static const uint16_t EVT_GAME_TIMER_END     = 202;  // Game duration timer expired
+static const uint16_t EVT_GAME_STANDBY_END   = 203;  // Standby duration timer expired
 
 #endif // HFSM_EVENTS_H
 

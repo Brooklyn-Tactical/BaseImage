@@ -27,7 +27,7 @@ export default function HomePage() {
       }}
     >
       <Typography variant="h4" align="center" fontWeight="bold" gutterBottom>
-        Device Name
+        Bio-Vial
       </Typography>
       <Typography variant="h6" align="center" color="text.secondary" gutterBottom>
         by
@@ -36,7 +36,12 @@ export default function HomePage() {
         Brooklyn Tactical
       </Typography>
 
-      <Divider sx={{ width: '100%', maxWidth: 360, my: 3 }} />
+      <Box
+        component="img"
+        src="/shared/BT-logo.jpg"
+        alt="Brooklyn Tactical Logo"
+        sx={{ width: '100%', maxWidth: 360, my: 2 }}
+      />
 
       <Typography variant="body1" align="center">
         H/W Version: {hw}

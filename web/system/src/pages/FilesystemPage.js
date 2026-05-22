@@ -5,11 +5,6 @@ import {
   Paper,
 } from '@mui/material';
 
-const FIRMWARE_WARNING =
-  'You are about to upload new firmware to your device. This process should only ' +
-  'be performed with a full battery charge. Once started, do not interrupt the ' +
-  'update — doing so may corrupt the device firmware and require manual recovery.';
-
 const FILESYSTEM_WARNING =
   'You are about to update your device\'s file system contents. This process should ' +
   'only be performed with a full battery charge. Once started, do not interrupt the ' +
@@ -96,8 +91,7 @@ async function restoreLifted(log) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function OtaPage({ type }) {
-  const isFirmware = type === 'firmware';
+export default function FilesystemPage() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [dialogOpen, setDialogOpen]     = useState(false);
 
@@ -118,41 +112,6 @@ export default function OtaPage({ type }) {
   };
 
   const handleFileChange = (e) => setSelectedFile(e.target.files[0] || null);
-
-  // ── Firmware: unchanged behaviour ────────────────────────────────────────
-  if (isFirmware) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Typography variant="h5" gutterBottom>Firmware Update</Typography>
-        <Typography variant="body1" color="warning.main"
-          sx={{ mb: 2, maxWidth: 520, fontWeight: 500 }}>
-          {FIRMWARE_WARNING}
-        </Typography>
-        <Typography variant="body1" sx={{ mb: 3, maxWidth: 520 }}>{CAPTIVE_NOTE}</Typography>
-        <Stack spacing={2} sx={{ maxWidth: 400 }}>
-          <Button variant="outlined" component="label" fullWidth>
-            {selectedFile ? selectedFile.name : 'Select File…'}
-            <input type="file" hidden onChange={handleFileChange} />
-          </Button>
-          <Button variant="contained" color="error" disabled={!selectedFile}
-            onClick={() => setDialogOpen(true)} fullWidth>
-            Upload and Restart
-          </Button>
-        </Stack>
-        <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-          <DialogTitle>Firmware OTA — Not Yet Implemented</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              The firmware OTA upload endpoint has not yet been configured on the device.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setDialogOpen(false)}>Close</Button>
-          </DialogActions>
-        </Dialog>
-      </Box>
-    );
-  }
 
   // ── Filesystem pipeline ───────────────────────────────────────────────────
   const startPipeline = async () => {

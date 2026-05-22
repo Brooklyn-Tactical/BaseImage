@@ -1,4 +1,4 @@
 {
   "version": "1.0",
-  "lifted_files": ["network.json"]
+  "lifted_files": ["network.json", "game_defaults.json"]
 }

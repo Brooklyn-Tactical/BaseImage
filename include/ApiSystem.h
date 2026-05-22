@@ -2,7 +2,6 @@
 #define API_SYSTEM_H
 
 #include <Arduino.h>
-#include <ArduinoJson.h>
 #include <ESPAsyncWebServer.h>
 
 class ApiSystem {
@@ -19,10 +18,7 @@ private:
     void getStatus(AsyncWebServerRequest *request);
     void restart(AsyncWebServerRequest *request);
 
-    // Configuration endpoints
-    void getWiFiConfig(AsyncWebServerRequest *request);
-    void setWiFiConfig(AsyncWebServerRequest *request, const char *body);
-
+    // Configuration persistence helper
     void saveConfiguration();
 
     // Generic file endpoints (lift/restore + filesystem.json manifest)

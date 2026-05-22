@@ -8,8 +8,10 @@
 #include "BatteryService.h"
 #include "game.h"
 
-#define FIRMWARE_VERSION_MAJOR 0
-#define FIRMWARE_VERSION_MINOR 1
+// --------------------------------------------------- //
+// Configuration
+#define CONFIG_DEBOUNCE_INTERVAL  10  // in ms
+// --------------------------------------------------- //
 
 // ---------------------------------------------------------------------------
 // Global networking objects
@@ -38,21 +40,63 @@ BatteryService batteryService;
 JsonDocument global_configuration;
 bool         global_config_loaded = false;   // true only when the file parsed OK
 
-// for LED blinking
-bool ledState = false;
+
+// Hardware
+// ============================================================================
+// #include <Tone.h>
+// Tone piezo[2];
+
+#include <Bounce2.h>
+Bounce2::Button global_arming_button = Bounce2::Button();
+
+#include <FadeLed.h>
+//#define FADE_LED_MAX_LED 1
+FadeLed MainLED(PIN_LIGHT, true);
+//FadeLed MainLED[1] = {PIN_LIGHT};
+
+
+#include <TM1637TinyDisplay.h>
+TM1637TinyDisplay global_disp(PIN_TMR_CLK, PIN_TMR_DATA);
+const PROGMEM char LEDSTR_DASHES[] = "----";
+
+
+// ============================================================================
+
+
 
 bool modeSelected = false;
-unsigned long lastHeartbeat = 0;
-
 
 void setup() {
   // Initialize serial communication
   Serial.begin(115200);
   delay(250);
 
+  Serial.println("");
+  Serial.println(F("--------------------------"));
+  Serial.print(F("  Bio-Vial Standalone v"));
+  Serial.print(FIRMWARE_VERSION_MAJOR);
+  Serial.print(F("."));
+  Serial.println(FIRMWARE_VERSION_MINOR);
+  Serial.println(F("   By Brooklyn Tactical"));
+  Serial.println(F("--------------------------"));
+
   // Initialize the LED pin as an output
   pinMode(LED_PIN, OUTPUT);
+
+  // Arming Pin button setup
   pinMode(PIN_MODE_SELECT, INPUT_PULLUP);
+  global_arming_button.attach(PIN_ARMING, INPUT_PULLUP);
+  global_arming_button.interval(CONFIG_DEBOUNCE_INTERVAL);
+  global_arming_button.setPressedState(LOW);
+
+  // setup main LED light
+  pinMode(PIN_LIGHT, OUTPUT);
+  MainLED.set(0); // LED off
+
+  // setup LED display
+  global_disp.begin();
+  global_disp.setBrightness(1);
+  global_disp.showString_P(LEDSTR_DASHES);
 
   // Initialize the BatteryService.
   // Calibration values are loaded from EEPROM (addresses 4-20).
@@ -149,8 +193,6 @@ void setup() {
   listDir("/", 0);
   Serial.println(F("[FS] --- end of listing ---"));
 
-//  server.serveStatic("/", FILESYSTEM, "/web");
-
   // ---------------------------------------------------------------------
   // Start the FSMs
   // ---------------------------------------------------------------------
@@ -164,6 +206,9 @@ void setup() {
     modeSelected = true;
     networkingFSM.dispatch(EVT_NET_SELECTED_ADMIN);
   }
+
+  // // TODO: Remove This!!!
+  // networkingFSM.dispatch(EVT_NET_SELECTED_ADMIN);
 }
 
 // ---------------------------------------------------------------------------
@@ -200,7 +245,7 @@ static void processSerialCommands() {
 
         case (('H' << 8) | 'W'): {   // "HW:<float>"
           float hwVal = serialLine.substring(3).toFloat();
-          EEPROM.begin(sizeof(float));
+          EEPROM.begin(sizeof(float) + 5 * sizeof(int));  // full blob size — prevents truncation of calibration data
           EEPROM.put(0, hwVal);
           EEPROM.commit();
           EEPROM.end();
@@ -218,10 +263,9 @@ static void processSerialCommands() {
 
         case (('B' << 8) | 'L'): {   // "BL:" — dump calibration points from EEPROM
           const int base = sizeof(float);
-          const int sz   = sizeof(int);
-          int addr_b4    = base + 4 * sz;  // highest address needed (addr 20)
-          EEPROM.begin(addr_b4 + sz);
-          int v0, v25, v50, v75, v100;
+          const int sz   = sizeof(int);  // slot spacing matches write side
+          EEPROM.begin(sizeof(float) + 5 * sizeof(int));  // full blob size
+          uint16_t v0, v25, v50, v75, v100;               // uint16_t matches write side
           EEPROM.get(base + 0 * sz, v0);
           EEPROM.get(base + 1 * sz, v25);
           EEPROM.get(base + 2 * sz, v50);
@@ -244,8 +288,8 @@ static void processSerialCommands() {
         case (('B' << 8) | '4'): {   // "Bx" where x is 0-4 for battery levels [0%, 25%, 50%, 75%, 100%]
           int index = (cmd & 0xFF) - '0';  // Convert ASCII to 0-4
           int addr = sizeof(float) + index * sizeof(int); // offset by HW version's float entry
-          int batVal = analogRead(BATTERY_PIN);
-          EEPROM.begin(addr + sizeof(int));
+          uint16_t batVal = (uint16_t)analogRead(BATTERY_PIN);  // uint16_t matches BatteryService reads
+          EEPROM.begin(sizeof(float) + 5 * sizeof(int));        // full blob size — prevents truncation of other calibration points
           EEPROM.put(addr, batVal);
           EEPROM.commit();
           EEPROM.end();
@@ -275,12 +319,21 @@ void loop() {
   // Poll battery service for ADC updates
   batteryService.update();
 
-  // Drive the networking HFSM
+  // Drive the HFSMs
   networkingFSM.update();
-
-  // Drive the game HFSM
   gameFSM.update();
 
+  // Do Fading of LED light
+  FadeLed::update();
+
+  // do arming pin
+  global_arming_button.update();
+  if (global_arming_button.pressed()) {
+    gameFSM.dispatch(EVT_CORE_PIN_INSERTED);
+  }
+  if (global_arming_button.released()) {
+    gameFSM.dispatch(EVT_CORE_PIN_REMOVED);
+  }
 
   // ================================================================
   // Select Game/Admin mode based on mode-select button being pressed
@@ -298,20 +351,5 @@ void loop() {
     }
   }
   // ================================================================
-
-
-
-
-  // // Heartbeat LED flash every second
-  // unsigned long now = millis();
-  // if (now - lastHeartbeat >= 1000) {
-  //   lastHeartbeat = now;
-  //   ledState = true;
-  //   digitalWrite(LED_PIN, LOW);
-  // }
-  // if (ledState && now - lastHeartbeat >= 10) {
-  //   ledState = false;
-  //   digitalWrite(LED_PIN, HIGH);
-  // }
 
 }
