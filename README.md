@@ -334,4 +334,4 @@ The selected language is stored in `localStorage` under the key `i18nextLng` and
 
 ## License
 
-MIT
+GNU Lesser General Public License v3 (LGPL-3.0)
