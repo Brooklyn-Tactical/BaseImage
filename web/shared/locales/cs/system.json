@@ -1,0 +1,137 @@
+{
+  "appBar": {
+    "title": "Správa systému"
+  },
+  "drawer": {
+    "navigation": "Navigace"
+  },
+  "nav": {
+    "groups": {
+      "network": "Síť",
+      "otaUpdate": "OTA aktualizace",
+      "diagnostics": "Diagnostika"
+    },
+    "items": {
+      "wifi": "WiFi",
+      "mesh": "Mesh",
+      "filesystem": "Souborový systém",
+      "diagnostics": "Diagnostika"
+    }
+  },
+  "home": {
+    "productName": "Bio-Vial",
+    "by": "od",
+    "brand": "Brooklyn Tactical",
+    "logoAlt": "Logo Brooklyn Tactical"
+  },
+  "wifi": {
+    "title": "Nastavení WiFi",
+    "channel": "WiFi kanál",
+    "apName": "Název AP",
+    "apNameCharCount": "{{len}}/31",
+    "apPassword": "Heslo AP",
+    "snackbar": {
+      "loadFailed": "Nepodařilo se načíst nastavení WiFi",
+      "saved": "Nastavení WiFi uloženo"
+    }
+  },
+  "mesh": {
+    "title": "Nastavení Mesh",
+    "gameNet": "Game Net #",
+    "gameMode": "Herní režim #",
+    "meshNode": "Mesh uzel #",
+    "meshName": "Název Mesh uzlu",
+    "nameCharCount": "{{len}}/28 znaků",
+    "error": {
+      "uint8": "Musí být 0–255",
+      "uint16": "Musí být 0–65535"
+    },
+    "snackbar": {
+      "loadFailed": "Nepodařilo se načíst nastavení Mesh",
+      "saved": "Nastavení Mesh uloženo"
+    }
+  },
+  "filesystem": {
+    "title": "Uložení/obnovení konfigurace",
+    "warning": "Tuto stránku použijte k uložení konfiguračních souborů zařízení před ruční aktualizací hardwaru a k jejich obnovení po dokončení aktualizace.",
+    "captiveNote": "Mnoho zařízení blokuje nahrávání souborů z vestavěného captive-portálového prohlížeče. Pokud nemůžete vybrat soubor, nejprve se připojte k této síti a poté otevřete http://my.milsim.prop/ ve svém běžném prohlížeči.",
+    "liftButton": "Uložit konfiguraci",
+    "restoreButton": "Obnovit konfiguraci",
+    "nextSteps": "Konfigurační soubory byly uloženy do vašeho prohlížeče. Nyní můžete aktualizovat hardware zařízení. Až budete hotovi, vraťte se na tuto stránku a klikněte na \u201eObnovit konfiguraci\u201c, abyste soubory zapsali zpět.",
+    "dialog": {
+      "title": "Přepsat uloženou konfiguraci?",
+      "body": "V prohlížeči jsou již uloženy konfigurační soubory z předchozího uložení. Pokračováním je přepíšete novou kopií z aktuálního zařízení. Chcete pokračovat?"
+    },
+    "status": {
+      "liftDone": "Konfigurace byla úspěšně uložena.",
+      "liftError": "Ukládání konfigurace skončilo s chybami — zkontrolujte výpis výše.",
+      "restoreDone": "Konfigurace byla úspěšně obnovena.",
+      "restoreError": "Obnovení skončilo s chybami — zkontrolujte výpis výše."
+    },
+    "log": {
+      "fetchingFiles": "Načítání seznamu souborů k zachování…",
+      "manifestError": "Nepodařilo se načíst manifest souborového systému",
+      "filesToPreserve": "Soubory k zachování: {{files}}",
+      "filesToPreserveNone": "Soubory k zachování: žádné",
+      "savingToStorage": "Ukládání souborů do úložiště prohlížeče…",
+      "savedFile": "  ✓ Uložen {{path}}",
+      "skippedFile": "  – {{path}} nebyl na zařízení nalezen, přeskakuji",
+      "noFilesToRestore": "Žádné soubory k obnovení.",
+      "restoring": "  Obnovování {{count}} souboru(ů) do zařízení…",
+      "restoredFile": "  ✓ Obnoven {{path}}",
+      "restoreFileFailed": "  ✗ Nepodařilo se obnovit {{path}} — ponecháno v úložišti prohlížeče",
+      "restoreFileNetError": "  ✗ Chyba sítě při obnově {{path}} — ponecháno v úložišti prohlížeče",
+      "liftComplete": "✓ Konfigurace uložena!",
+      "liftPartial": "⚠ Některé soubory se nepodařilo uložit — viz výpis výše.",
+      "error": "✗ Chyba: {{message}}",
+      "restoreComplete": "✓ Obnova dokončena!",
+      "restorePartial": "⚠ Některé soubory se nepodařilo obnovit."
+    }
+  },
+  "diagnostics": {
+    "title": "Diagnostika",
+    "ledBar": {
+      "title": "LED lišta"
+    },
+    "ledDisplay": {
+      "title": "LED displej"
+    },
+    "speaker": {
+      "title": "Reproduktor",
+      "beep": "Pípnutí"
+    },
+    "armDisarm": {
+      "title": "Aktivace/Deaktivace",
+      "readStatus": "Načíst stav",
+      "status": "Stav: {{value}}"
+    },
+    "eeprom": {
+      "title": "EEPROM",
+      "invalidChars": "Povoleny jsou pouze znaky 0–9 a A–F",
+      "charCountFull": "{{len}}/{{expected}} hexadecimálních znaků ({{bytes}} bajtů)",
+      "charCount": "{{len}} hexadecimálních znaků"
+    },
+    "system": {
+      "title": "Systém",
+      "reboot": "Restartovat",
+      "rebooting": "Restartování…"
+    },
+    "snackbar": {
+      "rebooting": "Restartování zařízení — znovu se připojte za několik sekund",
+      "eepromWritten": "EEPROM zapsána",
+      "eepromInvalid": "Neplatný obsah EEPROM: očekáváno {{expected}} hexadecimálních znaků",
+      "ledFailed": "Nastavení LED selhalo [HTTP {{status}}]",
+      "ledFailedNet": "Nastavení LED selhalo: {{message}}",
+      "displayFailed": "Nastavení displeje selhalo [HTTP {{status}}]",
+      "displayFailedNet": "Nastavení displeje selhalo: {{message}}",
+      "beepFailed": "Pípnutí selhalo [HTTP {{status}}]",
+      "beepFailedNet": "Pípnutí selhalo: {{message}}",
+      "readStatusFailed": "Načtení stavu selhalo [HTTP {{status}}]",
+      "readStatusFailedNet": "Načtení stavu selhalo: {{message}}",
+      "eepromReadFailed": "Čtení EEPROM selhalo [HTTP {{status}}]",
+      "eepromReadFailedNet": "Čtení EEPROM selhalo: {{message}}",
+      "eepromWriteFailed": "Zápis EEPROM selhal [HTTP {{status}}]",
+      "eepromWriteFailedNet": "Zápis EEPROM selhal: {{message}}"
+    }
+  }
+}

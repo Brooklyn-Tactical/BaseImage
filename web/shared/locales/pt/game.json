@@ -1,0 +1,59 @@
+{
+  "appBar": {
+    "defaultTitle": "Prop Bio-Vial"
+  },
+  "drawer": {
+    "title": "Acesso Administrativo",
+    "adminBody": "Para acessar o modo administrativo do sistema, insira o “pino da granada” no dispositivo de jogo dentro de 5 segundos após ligá-lo. Assim que o prop entrar no Modo do Sistema, ele criará um ponto de acesso Wi-Fi chamado \"BrooklynTactical-<em>XYZ</em>\", que pode ser acessado sem senha. O Modo do Sistema permite configurar:<ul><li>Rede Wi-Fi</li><li>Rede Mesh</li><li>Firmware/Sistema de Arquivos</li></ul>",
+    "logoAlt": "Logo da Brooklyn Tactical"
+  },
+  "hero": {
+    "productName": "Bio-Vial",
+    "by": "por",
+    "brand": "Brooklyn Tactical"
+  },
+  "status": {
+    "loading": "Carregando…",
+    "state": "Estado:",
+    "gameTime": "Tempo de Jogo:"
+  },
+  "settings": {
+    "title": "Configurações da Partida",
+    "countdown": {
+      "label": "Tempo da Contagem Regressiva",
+      "unit": "min",
+      "description": "O cronômetro principal da contagem regressiva. Depois que o frasco for posicionado, armado e ativado, este cronômetro faz a contagem até zero. Se chegar a zero antes que o frasco seja desarmado, o conteúdo do frasco será \"liberado\" e a força atacante vence. Faixa: 1–99 minutos."
+    },
+    "armDisarm": {
+      "label": "Tempo de Armar / Desarmar",
+      "unit": "seg",
+      "description": "Duração das sequências de armar e desarmar. Os jogadores devem manter o “pino da granada” inserido por essa quantidade de segundos para concluir a ação. Remover o “pino da granada” antes do fim da contagem cancela a sequência. Faixa: 5–99 segundos."
+    },
+    "multipleArmings": {
+      "label": "Múltiplos Armamentos",
+      "description": "Quando ativado, desarmar o frasco com sucesso o retorna ao modo de espera, permitindo que ele seja armado e desarmado novamente durante a mesma rodada. Quando desativado, um desarme bem-sucedido encerra imediatamente a rodada."
+    },
+    "standby": {
+      "label": "Tempo de Jogo",
+      "unit": "min",
+      "description": "Duração da rodada em que o dispositivo permanecerá em jogo. Faixa: 0–199 minutos (0 desativa o limite de tempo da rodada)."
+    },
+    "showStandby": {
+      "label": "Mostrar Tempo de Jogo",
+      "description": "Quando ativado, o visor de LED do frasco exibe o tempo restante da partida enquanto aguarda os jogadores iniciarem a sequência de contagem regressiva."
+    }
+  },
+  "control": {
+    "startGame": "Iniciar Partida",
+    "restartGame": "Reiniciar Partida"
+  },
+  "snackbar": {
+    "gameStarted": "Nova partida iniciada",
+    "gameStartError": "Erro ao iniciar a partida!",
+    "defaultsSaved": "Padrões salvos",
+    "defaultsSaveFailed": "Falha ao salvar os padrões",
+    "defaultsLoaded": "Padrões carregados",
+    "defaultsLoadFailed": "Falha ao carregar os padrões",
+    "noSavedDefaults": "Nenhuma configuração padrão salva encontrada"
+  }
+}

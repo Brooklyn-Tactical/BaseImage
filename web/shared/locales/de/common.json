@@ -1,0 +1,31 @@
+{
+  "battery": {
+    "level": "Akkustand: {{pct}}%",
+    "readFailed": "Akkustand konnte nicht ausgelesen werden"
+  },
+  "versions": {
+    "hw": "HW-Version: {{version}}",
+    "sw": "SW-Version: {{version}}",
+    "fs": "Dateisystem-Version: {{version}}",
+    "fsShort": "FS-Version: {{version}}"
+  },
+  "action": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "load": "Laden",
+    "read": "Auslesen",
+    "write": "Schreiben",
+    "proceed": "Fortfahren"
+  },
+  "error": {
+    "httpSaveFailed": "Speichern fehlgeschlagen [HTTP {{status}}]{{detail}}",
+    "netSaveFailed": "Speichern fehlgeschlagen: {{message}}"
+  },
+  "language": {
+    "label": "Sprache"
+  },
+  "onOff": {
+    "on": "Ein",
+    "off": "Aus"
+  }
+}

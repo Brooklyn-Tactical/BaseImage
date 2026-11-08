@@ -103,6 +103,11 @@ app.use(apiPath, (req, res) => {
   proxyReq.end();
 });
 
+// Serve shared assets (fonts, images, locale JSON files) from web/shared/
+// This mirrors the ESP32 route: server.serveStatic("/shared/", FILESYSTEM, "/web/shared/")
+const sharedPath = path.join(__dirname, 'web', 'shared');
+app.use('/shared', express.static(sharedPath));
+
 // Serve static files from /dist directory
 const distPath = path.join(__dirname, 'dist');
 app.use(express.static(distPath, {

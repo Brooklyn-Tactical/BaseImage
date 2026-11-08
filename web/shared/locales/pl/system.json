@@ -1,0 +1,137 @@
+{
+  "appBar": {
+    "title": "Administracja systemu"
+  },
+  "drawer": {
+    "navigation": "Nawigacja"
+  },
+  "nav": {
+    "groups": {
+      "network": "Sieć",
+      "otaUpdate": "Aktualizacja OTA",
+      "diagnostics": "Diagnostyka"
+    },
+    "items": {
+      "wifi": "WiFi",
+      "mesh": "Mesh",
+      "filesystem": "System plików",
+      "diagnostics": "Diagnostyka"
+    }
+  },
+  "home": {
+    "productName": "Bio-Vial",
+    "by": "od",
+    "brand": "Brooklyn Tactical",
+    "logoAlt": "Logo Brooklyn Tactical"
+  },
+  "wifi": {
+    "title": "Konfiguracja WiFi",
+    "channel": "Kanał WiFi",
+    "apName": "Nazwa AP",
+    "apNameCharCount": "{{len}}/31",
+    "apPassword": "Hasło AP",
+    "snackbar": {
+      "loadFailed": "Nie udało się wczytać ustawień WiFi",
+      "saved": "Zapisano ustawienia WiFi"
+    }
+  },
+  "mesh": {
+    "title": "Konfiguracja Mesh",
+    "gameNet": "Sieć gry #",
+    "gameMode": "Tryb gry #",
+    "meshNode": "Węzeł Mesh #",
+    "meshName": "Nazwa węzła Mesh",
+    "nameCharCount": "{{len}}/28 znaków",
+    "error": {
+      "uint8": "Musi być 0–255",
+      "uint16": "Musi być 0–65535"
+    },
+    "snackbar": {
+      "loadFailed": "Nie udało się wczytać ustawień Mesh",
+      "saved": "Zapisano ustawienia Mesh"
+    }
+  },
+  "filesystem": {
+    "title": "Zapisz/przywróć konfigurację",
+    "warning": "Użyj tej strony, aby zapisać pliki konfiguracyjne urządzenia przed ręczną aktualizacją sprzętu, a następnie przywrócić je po zakończeniu aktualizacji.",
+    "captiveNote": "Wiele urządzeń blokuje przesyłanie plików z wbudowanej przeglądarki captive portal. Jeśli nie możesz wybrać pliku, połącz się najpierw z tą siecią, a następnie otwórz http://my.milsim.prop/ w zwykłej przeglądarce.",
+    "liftButton": "Zapisz konfigurację",
+    "restoreButton": "Przywróć konfigurację",
+    "nextSteps": "Pliki konfiguracyjne zostały zapisane w przeglądarce. Możesz teraz zaktualizować sprzęt urządzenia. Po zakończeniu wróć na tę stronę i kliknij \u201ePrzywróć konfigurację\u201c, aby zapisać pliki z powrotem.",
+    "dialog": {
+      "title": "Nadpisać zapisaną konfigurację?",
+      "body": "W przeglądarce są już zapisane pliki konfiguracyjne z poprzedniego zapisu. Kontynuowanie spowoduje ich nadpisanie nową kopią z bieżącego urządzenia. Czy chcesz kontynuować?"
+    },
+    "status": {
+      "liftDone": "Konfiguracja zapisana pomyślnie.",
+      "liftError": "Zapisywanie konfiguracji zakończyło się z błędami — sprawdź log powyżej.",
+      "restoreDone": "Konfiguracja przywrócona pomyślnie.",
+      "restoreError": "Przywracanie zakończyło się z błędami — sprawdź log powyżej."
+    },
+    "log": {
+      "fetchingFiles": "Pobieranie listy plików do zachowania…",
+      "manifestError": "Nie można odczytać manifestu systemu plików",
+      "filesToPreserve": "Pliki do zachowania: {{files}}",
+      "filesToPreserveNone": "Pliki do zachowania: brak",
+      "savingToStorage": "Zapisywanie plików w pamięci przeglądarki…",
+      "savedFile": "  ✓ Zapisano {{path}}",
+      "skippedFile": "  – {{path}} nie znaleziono na urządzeniu, pomijanie",
+      "noFilesToRestore": "Brak plików do przywrócenia.",
+      "restoring": "  Przywracanie {{count}} plik(ów) na urządzenie…",
+      "restoredFile": "  ✓ Przywrócono {{path}}",
+      "restoreFileFailed": "  ✗ Nie udało się przywrócić {{path}} — pozostawiono w pamięci przeglądarki",
+      "restoreFileNetError": "  ✗ Błąd sieci przy przywracaniu {{path}} — pozostawiono w pamięci przeglądarki",
+      "liftComplete": "✓ Konfiguracja zapisana!",
+      "liftPartial": "⚠ Niektórych plików nie udało się zapisać — zobacz log powyżej.",
+      "error": "✗ Błąd: {{message}}",
+      "restoreComplete": "✓ Przywracanie zakończone!",
+      "restorePartial": "⚠ Niektóre pliki nie zostały przywrócone."
+    }
+  },
+  "diagnostics": {
+    "title": "Diagnostyka",
+    "ledBar": {
+      "title": "Pasek LED"
+    },
+    "ledDisplay": {
+      "title": "Wyświetlacz LED"
+    },
+    "speaker": {
+      "title": "Głośnik",
+      "beep": "Sygnał dźwiękowy"
+    },
+    "armDisarm": {
+      "title": "Uzbrój/Rozbrój",
+      "readStatus": "Odczytaj status",
+      "status": "Status: {{value}}"
+    },
+    "eeprom": {
+      "title": "EEPROM",
+      "invalidChars": "Dozwolone tylko 0–9 i A–F",
+      "charCountFull": "{{len}}/{{expected}} znaków hex ({{bytes}} bajtów)",
+      "charCount": "{{len}} znaków hex"
+    },
+    "system": {
+      "title": "System",
+      "reboot": "Restart",
+      "rebooting": "Restartowanie…"
+    },
+    "snackbar": {
+      "rebooting": "Restart urządzenia — połącz się ponownie za kilka sekund",
+      "eepromWritten": "EEPROM zapisany",
+      "eepromInvalid": "Nieprawidłowa zawartość EEPROM: oczekiwano {{expected}} znaków hex",
+      "ledFailed": "Błąd ustawienia LED [HTTP {{status}}]",
+      "ledFailedNet": "Błąd ustawienia LED: {{message}}",
+      "displayFailed": "Błąd ustawienia wyświetlacza [HTTP {{status}}]",
+      "displayFailedNet": "Błąd ustawienia wyświetlacza: {{message}}",
+      "beepFailed": "Błąd sygnału dźwiękowego [HTTP {{status}}]",
+      "beepFailedNet": "Błąd sygnału dźwiękowego: {{message}}",
+      "readStatusFailed": "Błąd odczytu statusu [HTTP {{status}}]",
+      "readStatusFailedNet": "Błąd odczytu statusu: {{message}}",
+      "eepromReadFailed": "Błąd odczytu EEPROM [HTTP {{status}}]",
+      "eepromReadFailedNet": "Błąd odczytu EEPROM: {{message}}",
+      "eepromWriteFailed": "Błąd zapisu EEPROM [HTTP {{status}}]",
+      "eepromWriteFailedNet": "Błąd zapisu EEPROM: {{message}}"
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "battery": {
+    "level": "バッテリー残量: {{pct}}%",
+    "readFailed": "バッテリー残量の読み取りに失敗しました"
+  },
+  "versions": {
+    "hw": "ハードウェアバージョン: {{version}}",
+    "sw": "ソフトウェアバージョン: {{version}}",
+    "fs": "ファイルシステムバージョン: {{version}}",
+    "fsShort": "FSバージョン: {{version}}"
+  },
+  "action": {
+    "save": "保存",
+    "cancel": "キャンセル",
+    "load": "読み込み",
+    "read": "読み取り",
+    "write": "書き込み",
+    "proceed": "続行"
+  },
+  "error": {
+    "httpSaveFailed": "保存に失敗しました [HTTP {{status}}]{{detail}}",
+    "netSaveFailed": "保存に失敗しました: {{message}}"
+  },
+  "language": {
+    "label": "言語"
+  },
+  "onOff": {
+    "on": "オン",
+    "off": "オフ"
+  }
+}

@@ -4,66 +4,48 @@ import {
   Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
   Paper,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../../shared/i18n';
 
-const FILESYSTEM_WARNING =
-  'You are about to update your device\'s file system contents. This process should ' +
-  'only be performed with a full battery charge. Once started, do not interrupt the ' +
-  'update — doing so may corrupt the filesystem and require manual recovery.';
 
-const CAPTIVE_NOTE =
-  'Many devices block file uploads from the built-in captive-portal browser. ' +
-  'If you cannot select a file, connect to this network first and then open ' +
-  'http://my.milsim.prop/ in your normal browser.';
 
 // ── localStorage key prefix for lifted files ─────────────────────────────
 const LS_PREFIX = 'lifted:';
 
-// ── Filesystem OTA pipeline ───────────────────────────────────────────────
-async function runFilesystemOta(file, log) {
-  // 1. Fetch list of files to lift
-  log('Fetching list of files to preserve…');
+// ── Lift config files from device into localStorage ───────────────────────
+async function liftConfig(log) {
+  const t = (key, opts) => i18n.t(key, opts);
+  log(t('system:filesystem.log.fetchingFiles'));
   const manifestRes = await fetch('/api/system/files');
-  if (!manifestRes.ok) throw new Error('Could not read filesystem manifest');
+  if (!manifestRes.ok) throw new Error(t('system:filesystem.log.manifestError'));
   const { lifted_files } = await manifestRes.json();
-  log(`Files to preserve: ${lifted_files.length > 0 ? lifted_files.join(', ') : 'none'}`);
+  log(lifted_files.length > 0
+    ? t('system:filesystem.log.filesToPreserve', { files: lifted_files.join(', ') })
+    : t('system:filesystem.log.filesToPreserveNone'));
 
-  // 2. Download each file into localStorage
-  log('Saving files to browser storage…');
+  log(t('system:filesystem.log.savingToStorage'));
+  let allSaved = true;
   for (const name of lifted_files) {
     const path = name.startsWith('/') ? name : '/' + name;
     const res = await fetch(`/api/system/file?path=${encodeURIComponent(path)}`);
     if (res.ok) {
       localStorage.setItem(LS_PREFIX + path, await res.text());
-      log(`  ✓ Saved ${path}`);
+      log(t('system:filesystem.log.savedFile', { path }));
     } else {
-      log(`  – ${path} not found on device, skipping`);
+      log(t('system:filesystem.log.skippedFile', { path }));
+      allSaved = false;
     }
   }
-
-  // 3. Upload the filesystem image
-  log('Uploading filesystem image to device…');
-  const formData = new FormData();
-  formData.append('file', file, file.name);
-  const uploadRes = await fetch('/api/system/ota/filesystem', {
-    method: 'POST',
-    body: formData,
-  });
-  if (!uploadRes.ok) {
-    const body = await uploadRes.json().catch(() => ({}));
-    throw new Error(body.error || `Upload failed (HTTP ${uploadRes.status})`);
-  }
-  log('Filesystem flashed successfully.');
-
-  // 4. Restore lifted files
-  return restoreLifted(log);
+  return allSaved;
 }
 
 // ── Restore files already in localStorage (also used as stand-alone retry) ─
 async function restoreLifted(log) {
+  const t = (key, opts) => i18n.t(key, opts);
   const keys = Object.keys(localStorage).filter(k => k.startsWith(LS_PREFIX));
-  if (keys.length === 0) { log('No files to restore.'); return true; }
+  if (keys.length === 0) { log(t('system:filesystem.log.noFilesToRestore')); return true; }
 
-  log(`Restoring ${keys.length} file(s) to device…`);
+  log(t('system:filesystem.log.restoring', { count: keys.length }));
   let allOk = true;
   for (const key of keys) {
     const path = key.slice(LS_PREFIX.length);
@@ -76,13 +58,13 @@ async function restoreLifted(log) {
       });
       if (res.ok) {
         localStorage.removeItem(key);
-        log(`  ✓ Restored ${path}`);
+        log(t('system:filesystem.log.restoredFile', { path }));
       } else {
-        log(`  ✗ Failed to restore ${path} — kept in browser storage`);
+        log(t('system:filesystem.log.restoreFileFailed', { path }));
         allOk = false;
       }
     } catch {
-      log(`  ✗ Network error restoring ${path} — kept in browser storage`);
+      log(t('system:filesystem.log.restoreFileNetError', { path }));
       allOk = false;
     }
   }
@@ -92,12 +74,12 @@ async function restoreLifted(log) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function FilesystemPage() {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [dialogOpen, setDialogOpen]     = useState(false);
+  const { t } = useTranslation(['system', 'common']);
 
-  // Filesystem-OTA state
-  const [phase, setPhase]             = useState('idle'); // idle|running|done|error
-  const [statusLines, setStatusLines] = useState([]);
+  const [liftOverwriteDialogOpen, setLiftOverwriteDialogOpen] = useState(false);
+  const [activeAction, setActiveAction]                       = useState(null); // 'lift' | 'restore'
+  const [phase, setPhase]                                     = useState('idle'); // idle|running|done|error
+  const [statusLines, setStatusLines]                         = useState([]);
   const logBoxRef = useRef(null);
 
   const hasPendingRestore =
@@ -111,68 +93,86 @@ export default function FilesystemPage() {
     }, 0);
   };
 
-  const handleFileChange = (e) => setSelectedFile(e.target.files[0] || null);
+  // ── Lift handlers ─────────────────────────────────────────────────────────
+  const startLift = () => {
+    if (hasPendingRestore) {
+      setLiftOverwriteDialogOpen(true);
+    } else {
+      executeLift();
+    }
+  };
 
-  // ── Filesystem pipeline ───────────────────────────────────────────────────
-  const startPipeline = async () => {
-    setDialogOpen(false);
+  const executeLift = async () => {
+    setLiftOverwriteDialogOpen(false);
+    setActiveAction('lift');
     setPhase('running');
     setStatusLines([]);
     try {
-      const allOk = await runFilesystemOta(selectedFile, appendLog);
-      setPhase(allOk ? 'done' : 'error');
-      if (allOk) appendLog('✓ Filesystem update complete!');
-      else        appendLog('⚠ Some files could not be restored — see log above.');
+      const allSaved = await liftConfig(appendLog);
+      setPhase(allSaved ? 'done' : 'error');
+      appendLog(allSaved
+        ? i18n.t('system:filesystem.log.liftComplete')
+        : i18n.t('system:filesystem.log.liftPartial'));
     } catch (err) {
-      appendLog(`✗ Error: ${err.message}`);
+      appendLog(i18n.t('system:filesystem.log.error', { message: err.message }));
       setPhase('error');
     }
   };
 
-  const startRetryRestore = async () => {
+  // ── Restore handler ───────────────────────────────────────────────────────
+  const startRestore = async () => {
+    setActiveAction('restore');
     setPhase('running');
     setStatusLines([]);
     try {
       const allOk = await restoreLifted(appendLog);
       setPhase(allOk ? 'done' : 'error');
-      if (allOk) appendLog('✓ Restore complete!');
-      else        appendLog('⚠ Some files could not be restored.');
+      appendLog(allOk
+        ? i18n.t('system:filesystem.log.restoreComplete')
+        : i18n.t('system:filesystem.log.restorePartial'));
     } catch (err) {
-      appendLog(`✗ Error: ${err.message}`);
+      appendLog(i18n.t('system:filesystem.log.error', { message: err.message }));
       setPhase('error');
     }
   };
 
   const isRunning = phase === 'running';
 
+  const statusKey =
+    phase === 'done'  && activeAction === 'lift'    ? 'system:filesystem.status.liftDone'    :
+    phase === 'error' && activeAction === 'lift'    ? 'system:filesystem.status.liftError'   :
+    phase === 'done'  && activeAction === 'restore' ? 'system:filesystem.status.restoreDone' :
+    phase === 'error' && activeAction === 'restore' ? 'system:filesystem.status.restoreError':
+    null;
+
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>Filesystem Update</Typography>
-      <Typography variant="body1" color="warning.main"
-        sx={{ mb: 2, maxWidth: 520, fontWeight: 500 }}>
-        {FILESYSTEM_WARNING}
+      <Typography variant="h5" gutterBottom>{t('system:filesystem.title')}</Typography>
+      <Typography variant="body1" color="text.secondary"
+        sx={{ mb: 2, maxWidth: 520 }}>
+        {t('system:filesystem.warning')}
       </Typography>
-      <Typography variant="body1" sx={{ mb: 3, maxWidth: 520 }}>{CAPTIVE_NOTE}</Typography>
+      <Typography variant="body1" sx={{ mb: 3, maxWidth: 520 }}>{t('system:filesystem.captiveNote')}</Typography>
 
       <Stack spacing={2} sx={{ maxWidth: 400 }}>
-        <Button variant="outlined" component="label" fullWidth disabled={isRunning}>
-          {selectedFile ? selectedFile.name : 'Select File…'}
-          <input type="file" hidden onChange={handleFileChange} />
+        <Button variant="contained" fullWidth
+          disabled={isRunning}
+          onClick={startLift}>
+          {t('system:filesystem.liftButton')}
         </Button>
 
-        <Button variant="contained" color="error" fullWidth
-          disabled={!selectedFile || isRunning}
-          onClick={() => setDialogOpen(true)}>
-          Upload and Apply
+        <Button variant="contained" color="success" fullWidth
+          disabled={!hasPendingRestore || isRunning}
+          onClick={startRestore}>
+          {t('system:filesystem.restoreButton')}
         </Button>
-
-        {hasPendingRestore && phase === 'idle' && (
-          <Button variant="outlined" color="warning" fullWidth
-            onClick={startRetryRestore}>
-            Retry Restore Saved Files
-          </Button>
-        )}
       </Stack>
+
+      {phase === 'done' && activeAction === 'lift' && (
+        <Typography color="info.main" sx={{ mt: 2, maxWidth: 520 }}>
+          {t('system:filesystem.nextSteps')}
+        </Typography>
+      )}
 
       {statusLines.length > 0 && (
         <Paper variant="outlined" ref={logBoxRef}
@@ -182,30 +182,25 @@ export default function FilesystemPage() {
         </Paper>
       )}
 
-      {phase === 'done' && (
-        <Typography color="success.main" sx={{ mt: 2, fontWeight: 600 }}>
-          Filesystem update applied successfully.
-        </Typography>
-      )}
-      {phase === 'error' && (
-        <Typography color="error.main" sx={{ mt: 2, fontWeight: 600 }}>
-          Update finished with errors — check the log above.
+      {statusKey && (
+        <Typography
+          color={phase === 'done' ? 'success.main' : 'error.main'}
+          sx={{ mt: 2, fontWeight: 600 }}>
+          {t(statusKey)}
         </Typography>
       )}
 
-      <Dialog open={dialogOpen} onClose={() => !isRunning && setDialogOpen(false)}>
-        <DialogTitle>Confirm Filesystem Update</DialogTitle>
+      <Dialog open={liftOverwriteDialogOpen} onClose={() => !isRunning && setLiftOverwriteDialogOpen(false)}>
+        <DialogTitle>{t('system:filesystem.dialog.title')}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            This will save your current device settings to browser storage, flash the
-            new filesystem image, then restore those settings automatically.
-            Do not close this browser tab until the process is complete.
+            {t('system:filesystem.dialog.body')}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={startPipeline}>
-            Proceed
+          <Button onClick={() => setLiftOverwriteDialogOpen(false)}>{t('common:action.cancel')}</Button>
+          <Button variant="contained" color="warning" onClick={executeLift}>
+            {t('common:action.proceed')}
           </Button>
         </DialogActions>
       </Dialog>

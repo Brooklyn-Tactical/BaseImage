@@ -1,0 +1,137 @@
+{
+  "appBar": {
+    "title": "システム管理"
+  },
+  "drawer": {
+    "navigation": "ナビゲーション"
+  },
+  "nav": {
+    "groups": {
+      "network": "ネットワーク",
+      "otaUpdate": "OTAアップデート",
+      "diagnostics": "診断"
+    },
+    "items": {
+      "wifi": "WiFi",
+      "mesh": "メッシュ",
+      "filesystem": "ファイルシステム",
+      "diagnostics": "診断"
+    }
+  },
+  "home": {
+    "productName": "Bio-Vial",
+    "by": "提供",
+    "brand": "Brooklyn Tactical",
+    "logoAlt": "Brooklyn Tactical ロゴ"
+  },
+  "wifi": {
+    "title": "WiFi設定",
+    "channel": "WiFiチャンネル",
+    "apName": "AP名",
+    "apNameCharCount": "{{len}}/31",
+    "apPassword": "APパスワード",
+    "snackbar": {
+      "loadFailed": "WiFi設定の読み込みに失敗しました",
+      "saved": "WiFi設定を保存しました"
+    }
+  },
+  "mesh": {
+    "title": "メッシュ設定",
+    "gameNet": "ゲームネット #",
+    "gameMode": "ゲームモード #",
+    "meshNode": "メッシュノード #",
+    "meshName": "メッシュノード名",
+    "nameCharCount": "{{len}}/28文字",
+    "error": {
+      "uint8": "0～255である必要があります",
+      "uint16": "0～65535である必要があります"
+    },
+    "snackbar": {
+      "loadFailed": "メッシュ設定の読み込みに失敗しました",
+      "saved": "メッシュ設定を保存しました"
+    }
+  },
+  "filesystem": {
+    "title": "設定の保存/復元",
+    "warning": "このページを使用して、ハードウェアを手動で更新する前にデバイスの設定ファイルを保存し、更新完了後に復元します。",
+    "captiveNote": "多くのデバイスでは、内蔵のキャプティブポータルブラウザーからのファイルアップロードがブロックされます。ファイルを選択できない場合は、まずこのネットワークに接続し、その後通常のブラウザーで http://my.milsim.prop/ を開いてください。",
+    "liftButton": "設定を保存",
+    "restoreButton": "設定を復元",
+    "nextSteps": "設定ファイルがブラウザーに保存されました。これでデバイスのハードウェアを更新できます。更新が完了したらこのページに戻り、\u300c設定を復元\u300dをクリックしてファイルを書き戻してください。",
+    "dialog": {
+      "title": "保存済み設定を上書きしますか？",
+      "body": "以前の保存から取得した設定ファイルがすでにブラウザーに保存されています。続行すると、現在のデバイスから取得した新しいコピーで上書きされます。続行しますか？"
+    },
+    "status": {
+      "liftDone": "設定が正常に保存されました。",
+      "liftError": "設定の保存がエラーで終了しました — 上のログを確認してください。",
+      "restoreDone": "設定が正常に復元されました。",
+      "restoreError": "復元がエラーで終了しました — 上のログを確認してください。"
+    },
+    "log": {
+      "fetchingFiles": "保持するファイルの一覧を取得しています…",
+      "manifestError": "ファイルシステムマニフェストを読み取れませんでした",
+      "filesToPreserve": "保持するファイル: {{files}}",
+      "filesToPreserveNone": "保持するファイル: なし",
+      "savingToStorage": "ファイルをブラウザーのストレージに保存しています…",
+      "savedFile": "  ✓ {{path}} を保存しました",
+      "skippedFile": "  – {{path}} はデバイス上に見つからなかったためスキップしました",
+      "noFilesToRestore": "復元するファイルはありません。",
+      "restoring": "  {{count}} 個のファイルをデバイスに復元しています…",
+      "restoredFile": "  ✓ {{path}} を復元しました",
+      "restoreFileFailed": "  ✗ {{path}} の復元に失敗しました — ブラウザーのストレージに保持されました",
+      "restoreFileNetError": "  ✗ {{path}} の復元中にネットワークエラーが発生しました — ブラウザーのストレージに保持されました",
+      "liftComplete": "✓ 設定を保存しました！",
+      "liftPartial": "⚠ 一部のファイルを保存できませんでした — 上のログを確認してください。",
+      "error": "✗ エラー: {{message}}",
+      "restoreComplete": "✓ 復元が完了しました！",
+      "restorePartial": "⚠ 一部のファイルを復元できませんでした。"
+    }
+  },
+  "diagnostics": {
+    "title": "診断",
+    "ledBar": {
+      "title": "LEDバー"
+    },
+    "ledDisplay": {
+      "title": "LEDディスプレイ"
+    },
+    "speaker": {
+      "title": "スピーカー",
+      "beep": "ビープ音"
+    },
+    "armDisarm": {
+      "title": "アーム/解除",
+      "readStatus": "状態を読み取る",
+      "status": "状態: {{value}}"
+    },
+    "eeprom": {
+      "title": "EEPROM",
+      "invalidChars": "0～9およびA～Fのみ使用できます",
+      "charCountFull": "{{len}}/{{expected}} 個の16進文字 ({{bytes}} バイト)",
+      "charCount": "{{len}} 個の16進文字"
+    },
+    "system": {
+      "title": "システム",
+      "reboot": "再起動",
+      "rebooting": "再起動中…"
+    },
+    "snackbar": {
+      "rebooting": "デバイスを再起動しています。数秒後に再接続してください",
+      "eepromWritten": "EEPROMに書き込みました",
+      "eepromInvalid": "EEPROMの内容が無効です: {{expected}} 個の16進文字が必要です",
+      "ledFailed": "LED設定に失敗しました [HTTP {{status}}]",
+      "ledFailedNet": "LED設定に失敗しました: {{message}}",
+      "displayFailed": "ディスプレイ設定に失敗しました [HTTP {{status}}]",
+      "displayFailedNet": "ディスプレイ設定に失敗しました: {{message}}",
+      "beepFailed": "ビープ音の実行に失敗しました [HTTP {{status}}]",
+      "beepFailedNet": "ビープ音の実行に失敗しました: {{message}}",
+      "readStatusFailed": "状態の読み取りに失敗しました [HTTP {{status}}]",
+      "readStatusFailedNet": "状態の読み取りに失敗しました: {{message}}",
+      "eepromReadFailed": "EEPROMの読み取りに失敗しました [HTTP {{status}}]",
+      "eepromReadFailedNet": "EEPROMの読み取りに失敗しました: {{message}}",
+      "eepromWriteFailed": "EEPROMへの書き込みに失敗しました [HTTP {{status}}]",
+      "eepromWriteFailedNet": "EEPROMへの書き込みに失敗しました: {{message}}"
+    }
+  }
+}

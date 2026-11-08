@@ -1,0 +1,59 @@
+{
+  "appBar": {
+    "defaultTitle": "Rekvizita Bio-Vial"
+  },
+  "drawer": {
+    "title": "Přístup pro správce",
+    "adminBody": "Pro vstup do administrátorského režimu systému zasuňte do herního zařízení během 5 sekund po zapnutí „pojistný kolík granátu“. Jakmile rekvizita přejde do systémového režimu, vytvoří Wi-Fi přístupový bod s názvem \"BrooklynTactical-<em>XYZ</em>\", ke kterému se lze připojit bez hesla. Systémový režim umožňuje konfiguraci:<ul><li>Wi-Fi sítě</li><li>Mesh sítě</li><li>Firmwaru / souborového systému</li></ul>",
+    "logoAlt": "Logo Brooklyn Tactical"
+  },
+  "hero": {
+    "productName": "Bio-Vial",
+    "by": "od",
+    "brand": "Brooklyn Tactical"
+  },
+  "status": {
+    "loading": "Načítání…",
+    "state": "Stav:",
+    "gameTime": "Čas hry:"
+  },
+  "settings": {
+    "title": "Nastavení hry",
+    "countdown": {
+      "label": "Čas odpočtu",
+      "unit": "min",
+      "description": "Hlavní časovač odpočtu. Jakmile je vial umístěn, odjištěn a aktivován, začne tento časovač odpočítávat k nule. Pokud dosáhne nuly dříve, než bude vial zneškodněn, jeho obsah je „uvolněn“ a útočící tým vítězí. Rozsah: 1–99 minut."
+    },
+    "armDisarm": {
+      "label": "Doba aktivace / zneškodnění",
+      "unit": "s",
+      "description": "Délka sekvence aktivace a zneškodnění. Hráči musí ponechat „pojistný kolík granátu“ zasunutý po uvedený počet sekund, aby byla akce dokončena. Vytažení „pojistného kolíku granátu“ před dokončením odpočtu sekvenci zruší. Rozsah: 5–99 sekund."
+    },
+    "multipleArmings": {
+      "label": "Opakovaná aktivace",
+      "description": "Pokud je tato možnost zapnutá, úspěšné zneškodnění vrátí vial do pohotovostního režimu, takže jej lze v rámci stejného kola znovu aktivovat a zneškodnit. Pokud je vypnutá, úspěšné zneškodnění okamžitě ukončí kolo."
+    },
+    "standby": {
+      "label": "Čas hry",
+      "unit": "min",
+      "description": "Délka herního kola, po kterou bude zařízení aktivní ve hře. Rozsah: 0–199 minut (0 vypne časový limit kola)."
+    },
+    "showStandby": {
+      "label": "Zobrazovat čas hry",
+      "description": "Pokud je tato možnost zapnutá, LED displej vialu zobrazuje zbývající čas hry během čekání na aktivaci odpočtu hráči."
+    }
+  },
+  "control": {
+    "startGame": "Spustit hru",
+    "restartGame": "Restartovat hru"
+  },
+  "snackbar": {
+    "gameStarted": "Nová hra spuštěna",
+    "gameStartError": "Chyba při spuštění hry!",
+    "defaultsSaved": "Výchozí nastavení uloženo",
+    "defaultsSaveFailed": "Nepodařilo se uložit výchozí nastavení",
+    "defaultsLoaded": "Výchozí nastavení načteno",
+    "defaultsLoadFailed": "Nepodařilo se načíst výchozí nastavení",
+    "noSavedDefaults": "Nebyla nalezena žádná uložená výchozí nastavení"
+  }
+}

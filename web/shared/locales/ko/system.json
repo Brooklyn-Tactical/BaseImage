@@ -1,0 +1,137 @@
+{
+  "appBar": {
+    "title": "시스템 관리자"
+  },
+  "drawer": {
+    "navigation": "탐색"
+  },
+  "nav": {
+    "groups": {
+      "network": "네트워크",
+      "otaUpdate": "OTA 업데이트",
+      "diagnostics": "진단"
+    },
+    "items": {
+      "wifi": "WiFi",
+      "mesh": "메시",
+      "filesystem": "파일 시스템",
+      "diagnostics": "진단"
+    }
+  },
+  "home": {
+    "productName": "Bio-Vial",
+    "by": "제공",
+    "brand": "Brooklyn Tactical",
+    "logoAlt": "Brooklyn Tactical 로고"
+  },
+  "wifi": {
+    "title": "WiFi 설정",
+    "channel": "WiFi 채널",
+    "apName": "AP 이름",
+    "apNameCharCount": "{{len}}/31",
+    "apPassword": "AP 비밀번호",
+    "snackbar": {
+      "loadFailed": "WiFi 설정을 불러오지 못했습니다",
+      "saved": "WiFi 설정이 저장되었습니다"
+    }
+  },
+  "mesh": {
+    "title": "메시 설정",
+    "gameNet": "게임 네트워크 #",
+    "gameMode": "게임 모드 #",
+    "meshNode": "메시 노드 #",
+    "meshName": "메시 노드 이름",
+    "nameCharCount": "{{len}}/28자",
+    "error": {
+      "uint8": "0~255 범위여야 합니다",
+      "uint16": "0~65535 범위여야 합니다"
+    },
+    "snackbar": {
+      "loadFailed": "메시 설정을 불러오지 못했습니다",
+      "saved": "메시 설정이 저장되었습니다"
+    }
+  },
+  "filesystem": {
+    "title": "설정 저장/복원",
+    "warning": "이 페이지를 사용하여 하드웨어를 수동으로 업데이트하기 전에 장치의 구성 파일을 저장하고, 업데이트 완료 후 복원합니다.",
+    "captiveNote": "많은 장치에서 내장 캡티브 포털 브라우저를 통한 파일 업로드를 차단합니다. 파일을 선택할 수 없는 경우 먼저 이 네트워크에 연결한 다음 일반 브라우저에서 http://my.milsim.prop/ 을 열어 주십시오.",
+    "liftButton": "설정 저장",
+    "restoreButton": "설정 복원",
+    "nextSteps": "구성 파일이 브라우저에 저장되었습니다. 이제 장치 하드웨어를 업데이트할 수 있습니다. 완료되면 이 페이지로 돌아와 \u2018설정 복원\u2019을 클릭하여 파일을 다시 기록하십시오.",
+    "dialog": {
+      "title": "저장된 설정을 덮어쓰시겠습니까?",
+      "body": "이전 저장에서 가져온 구성 파일이 이미 브라우저에 저장되어 있습니다. 계속하면 현재 장치의 새 복사본으로 덮어쓰게 됩니다. 계속하시겠습니까?"
+    },
+    "status": {
+      "liftDone": "설정이 성공적으로 저장되었습니다.",
+      "liftError": "설정 저장이 오류와 함께 완료되었습니다 — 위의 로그를 확인하십시오.",
+      "restoreDone": "설정이 성공적으로 복원되었습니다.",
+      "restoreError": "복원이 오류와 함께 완료되었습니다 — 위의 로그를 확인하십시오."
+    },
+    "log": {
+      "fetchingFiles": "보존할 파일 목록을 가져오는 중…",
+      "manifestError": "파일 시스템 매니페스트를 읽을 수 없습니다",
+      "filesToPreserve": "보존할 파일: {{files}}",
+      "filesToPreserveNone": "보존할 파일: 없음",
+      "savingToStorage": "파일을 브라우저 저장소에 저장하는 중…",
+      "savedFile": "  ✓ {{path}} 저장됨",
+      "skippedFile": "  – {{path}} 파일이 장치에 없어 건너뜀",
+      "noFilesToRestore": "복원할 파일이 없습니다.",
+      "restoring": "  {{count}}개 파일을 장치로 복원하는 중…",
+      "restoredFile": "  ✓ {{path}} 복원됨",
+      "restoreFileFailed": "  ✗ {{path}} 복원 실패 — 브라우저 저장소에 유지됨",
+      "restoreFileNetError": "  ✗ {{path}} 복원 중 네트워크 오류 발생 — 브라우저 저장소에 유지됨",
+      "liftComplete": "✓ 설정이 저장되었습니다!",
+      "liftPartial": "⚠ 일부 파일을 저장할 수 없었습니다 — 위의 로그를 확인하십시오.",
+      "error": "✗ 오류: {{message}}",
+      "restoreComplete": "✓ 복원 완료!",
+      "restorePartial": "⚠ 일부 파일을 복원할 수 없습니다."
+    }
+  },
+  "diagnostics": {
+    "title": "진단",
+    "ledBar": {
+      "title": "LED 바"
+    },
+    "ledDisplay": {
+      "title": "LED 디스플레이"
+    },
+    "speaker": {
+      "title": "스피커",
+      "beep": "비프음"
+    },
+    "armDisarm": {
+      "title": "무장/해제",
+      "readStatus": "상태 읽기",
+      "status": "상태: {{value}}"
+    },
+    "eeprom": {
+      "title": "EEPROM",
+      "invalidChars": "0–9 및 A–F만 사용할 수 있습니다",
+      "charCountFull": "{{len}}/{{expected}}개의 16진수 문자 ({{bytes}}바이트)",
+      "charCount": "{{len}}개의 16진수 문자"
+    },
+    "system": {
+      "title": "시스템",
+      "reboot": "재부팅",
+      "rebooting": "재부팅 중…"
+    },
+    "snackbar": {
+      "rebooting": "장치를 재부팅하는 중입니다. 몇 초 후 다시 연결하십시오",
+      "eepromWritten": "EEPROM이 기록되었습니다",
+      "eepromInvalid": "EEPROM 내용이 올바르지 않습니다: {{expected}}개의 16진수 문자가 필요합니다",
+      "ledFailed": "LED 설정 실패 [HTTP {{status}}]",
+      "ledFailedNet": "LED 설정 실패: {{message}}",
+      "displayFailed": "디스플레이 설정 실패 [HTTP {{status}}]",
+      "displayFailedNet": "디스플레이 설정 실패: {{message}}",
+      "beepFailed": "비프음 실행 실패 [HTTP {{status}}]",
+      "beepFailedNet": "비프음 실행 실패: {{message}}",
+      "readStatusFailed": "상태 읽기 실패 [HTTP {{status}}]",
+      "readStatusFailedNet": "상태 읽기 실패: {{message}}",
+      "eepromReadFailed": "EEPROM 읽기 실패 [HTTP {{status}}]",
+      "eepromReadFailedNet": "EEPROM 읽기 실패: {{message}}",
+      "eepromWriteFailed": "EEPROM 쓰기 실패 [HTTP {{status}}]",
+      "eepromWriteFailedNet": "EEPROM 쓰기 실패: {{message}}"
+    }
+  }
+}

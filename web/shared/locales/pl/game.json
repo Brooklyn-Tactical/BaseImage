@@ -1,0 +1,59 @@
+{
+  "appBar": {
+    "defaultTitle": "Rekwizyt Bio-Vial"
+  },
+  "drawer": {
+    "title": "Dostęp administratora",
+    "adminBody": "Aby uzyskać dostęp do trybu administracyjnego, włóż „zawleczkę granatu” do urządzenia w ciągu 5 sekund od jego włączenia. Po wejściu w Tryb Systemowy rekwizyt utworzy punkt dostępowy Wi-Fi o nazwie \"BrooklynTactical-<em>XYZ</em>\", z którym można połączyć się bez hasła. Tryb Systemowy umożliwia konfigurację:<ul><li>Sieci Wi-Fi</li><li>Sieci mesh</li><li>Firmware'u/Systemu plików</li></ul>",
+    "logoAlt": "Logo Brooklyn Tactical"
+  },
+  "hero": {
+    "productName": "Bio-Vial",
+    "by": "od",
+    "brand": "Brooklyn Tactical"
+  },
+  "status": {
+    "loading": "Ładowanie…",
+    "state": "Stan:",
+    "gameTime": "Czas gry:"
+  },
+  "settings": {
+    "title": "Ustawienia gry",
+    "countdown": {
+      "label": "Czas odliczania",
+      "unit": "min",
+      "description": "Główny timer odliczający. Po umieszczeniu fiolki, uzbrojeniu i aktywacji rozpoczyna się odliczanie do zera. Jeśli licznik osiągnie zero przed rozbrojeniem fiolki, jej zawartość zostaje „uwolniona”, a drużyna atakująca wygrywa. Zakres: 1–99 minut."
+    },
+    "armDisarm": {
+      "label": "Czas uzbrajania / rozbrajania",
+      "unit": "sek",
+      "description": "Czas trwania sekwencji uzbrajania i rozbrajania. Gracze muszą trzymać włożoną „zawleczkę granatu” przez określoną liczbę sekund, aby ukończyć czynność. Wyjęcie „zawleczki granatu” przed zakończeniem odliczania anuluje sekwencję. Zakres: 5–99 sekund."
+    },
+    "multipleArmings": {
+      "label": "Wielokrotne uzbrajanie",
+      "description": "Po włączeniu tej opcji skuteczne rozbrojenie fiolki przywraca ją do trybu czuwania, dzięki czemu można ją ponownie uzbroić i rozbroić w tej samej rundzie. Po wyłączeniu skuteczne rozbrojenie natychmiast kończy rundę."
+    },
+    "standby": {
+      "label": "Czas gry",
+      "unit": "min",
+      "description": "Czas trwania rundy, podczas której urządzenie pozostaje aktywne w grze. Zakres: 0–199 minut (wartość 0 wyłącza limit czasu rundy)."
+    },
+    "showStandby": {
+      "label": "Wyświetlaj czas gry",
+      "description": "Po włączeniu wyświetlacz LED fiolki pokazuje pozostały czas gry podczas oczekiwania na aktywację sekwencji odliczania przez graczy."
+    }
+  },
+  "control": {
+    "startGame": "Rozpocznij grę",
+    "restartGame": "Uruchom grę ponownie"
+  },
+  "snackbar": {
+    "gameStarted": "Rozpoczęto nową grę",
+    "gameStartError": "Błąd podczas uruchamiania gry!",
+    "defaultsSaved": "Zapisano ustawienia domyślne",
+    "defaultsSaveFailed": "Nie udało się zapisać ustawień domyślnych",
+    "defaultsLoaded": "Wczytano ustawienia domyślne",
+    "defaultsLoadFailed": "Nie udało się wczytać ustawień domyślnych",
+    "noSavedDefaults": "Nie znaleziono zapisanych ustawień domyślnych"
+  }
+}

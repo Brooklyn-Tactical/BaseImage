@@ -3,6 +3,7 @@ import {
   Box, Typography, Stack, TextField,
   FormControl, InputLabel, Select, MenuItem, Button,
 } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 const DEFAULT_FORM = { channel: 1, apName: '', apPassword: '' };
 
@@ -15,6 +16,7 @@ function normalize(data) {
 }
 
 export default function WiFiPage({ onSnackbar }) {
+  const { t } = useTranslation(['system', 'common']);
   const [saved, setSaved] = useState(DEFAULT_FORM);
   const [form, setForm] = useState(DEFAULT_FORM);
 
@@ -26,7 +28,7 @@ export default function WiFiPage({ onSnackbar }) {
         setSaved(vals);
         setForm(vals);
       })
-      .catch(() => onSnackbar('error', 'Failed to load WiFi settings'));
+      .catch(() => onSnackbar('error', t('system:wifi.snackbar.loadFailed')));
   }, []);
 
   const handleChange = (field) => (e) =>
@@ -45,14 +47,14 @@ export default function WiFiPage({ onSnackbar }) {
       });
       if (r.ok) {
         setSaved(form);
-        onSnackbar('success', 'WiFi settings saved');
+        onSnackbar('success', t('system:wifi.snackbar.saved'));
       } else {
         const body = await r.json().catch(() => ({}));
         const detail = body.error ? `: ${body.error}` : '';
-        onSnackbar('error', `Save failed [HTTP ${r.status}]${detail}`);
+        onSnackbar('error', t('common:error.httpSaveFailed', { status: r.status, detail }));
       }
     } catch (err) {
-      onSnackbar('error', `Save failed: ${err.message}`);
+      onSnackbar('error', t('common:error.netSaveFailed', { message: err.message }));
     }
   };
 
@@ -60,14 +62,14 @@ export default function WiFiPage({ onSnackbar }) {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>WiFi Configuration</Typography>
+      <Typography variant="h5" gutterBottom>{t('system:wifi.title')}</Typography>
       <Stack spacing={3} sx={{ maxWidth: 400 }}>
         <FormControl fullWidth>
-          <InputLabel id="wifi-channel-label">WiFi Channel</InputLabel>
+          <InputLabel id="wifi-channel-label">{t('system:wifi.channel')}</InputLabel>
           <Select
             labelId="wifi-channel-label"
             value={form.channel}
-            label="WiFi Channel"
+            label={t('system:wifi.channel')}
             onChange={handleChange('channel')}
           >
             {Array.from({ length: 11 }, (_, i) => i + 1).map(ch => (
@@ -77,24 +79,24 @@ export default function WiFiPage({ onSnackbar }) {
         </FormControl>
 
         <TextField
-          label="AP Name"
+          label={t('system:wifi.apName')}
           value={form.apName}
           onChange={handleChange('apName')}
           inputProps={{ maxLength: 31 }}
-          helperText={`${form.apName.length}/31`}
+          helperText={t('system:wifi.apNameCharCount', { len: form.apName.length })}
           fullWidth
         />
 
         <TextField
-          label="AP Password"
+          label={t('system:wifi.apPassword')}
           value={form.apPassword}
           onChange={handleChange('apPassword')}
           fullWidth
         />
 
         <Stack direction="row" spacing={2}>
-          <Button variant="contained" onClick={handleSave}>Save</Button>
-          <Button variant="outlined" onClick={handleCancel}>Cancel</Button>
+          <Button variant="contained" onClick={handleSave}>{t('common:action.save')}</Button>
+          <Button variant="outlined" onClick={handleCancel}>{t('common:action.cancel')}</Button>
         </Stack>
       </Stack>
     </Box>

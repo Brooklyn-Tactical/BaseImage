@@ -1,0 +1,31 @@
+{
+  "battery": {
+    "level": "Poziom baterii: {{pct}}%",
+    "readFailed": "Nie udało się odczytać poziomu baterii"
+  },
+  "versions": {
+    "hw": "Wersja sprzętu: {{version}}",
+    "sw": "Wersja oprogramowania: {{version}}",
+    "fs": "Wersja systemu plików: {{version}}",
+    "fsShort": "Wersja FS: {{version}}"
+  },
+  "action": {
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "load": "Wczytaj",
+    "read": "Odczytaj",
+    "write": "Zapisz",
+    "proceed": "Kontynuuj"
+  },
+  "error": {
+    "httpSaveFailed": "Zapis nieudany [HTTP {{status}}]{{detail}}",
+    "netSaveFailed": "Zapis nieudany: {{message}}"
+  },
+  "language": {
+    "label": "Język"
+  },
+  "onOff": {
+    "on": "Włączone",
+    "off": "Wyłączone"
+  }
+}

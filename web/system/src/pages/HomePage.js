@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Divider } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 export default function HomePage() {
+  const { t } = useTranslation(['system', 'common']);
   const [versions, setVersions] = useState(null);
 
   useEffect(() => {
@@ -27,30 +29,30 @@ export default function HomePage() {
       }}
     >
       <Typography variant="h4" align="center" fontWeight="bold" gutterBottom>
-        Bio-Vial
+        {t('system:home.productName')}
       </Typography>
       <Typography variant="h6" align="center" color="text.secondary" gutterBottom>
-        by
+        {t('system:home.by')}
       </Typography>
       <Typography variant="h4" align="center" fontWeight="bold" gutterBottom>
-        Brooklyn Tactical
+        {t('system:home.brand')}
       </Typography>
 
       <Box
         component="img"
         src="/shared/BT-logo.jpg"
-        alt="Brooklyn Tactical Logo"
+        alt={t('system:home.logoAlt')}
         sx={{ width: '100%', maxWidth: 360, my: 2 }}
       />
 
       <Typography variant="body1" align="center">
-        H/W Version: {hw}
+        {t('common:versions.hw', { version: hw })}
       </Typography>
       <Typography variant="body1" align="center">
-        S/W Version: {fw}
+        {t('common:versions.sw', { version: fw })}
       </Typography>
       <Typography variant="body1" align="center">
-        FS Version: {fs}
+        {t('common:versions.fsShort', { version: fs })}
       </Typography>
     </Box>
   );

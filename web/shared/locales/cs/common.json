@@ -1,0 +1,31 @@
+{
+    "battery": {
+    "level": "Stav baterie: {{pct}}%",
+        "readFailed": "Nepodařilo se načíst stav baterie"
+},
+    "versions": {
+    "hw": "Verze H/W: {{version}}",
+        "sw": "Verze S/W: {{version}}",
+        "fs": "Verze souborového systému: {{version}}",
+        "fsShort": "Verze FS: {{version}}"
+},
+    "action": {
+    "save": "Uložit",
+        "cancel": "Zrušit",
+        "load": "Načíst",
+        "read": "Číst",
+        "write": "Zapsat",
+        "proceed": "Pokračovat"
+},
+    "error": {
+    "httpSaveFailed": "Uložení selhalo [HTTP {{status}}]{{detail}}",
+        "netSaveFailed": "Uložení selhalo: {{message}}"
+},
+    "language": {
+    "label": "Jazyk"
+},
+    "onOff": {
+    "on": "Zapnuto",
+        "off": "Vypnuto"
+}
+}

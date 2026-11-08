@@ -1,0 +1,59 @@
+{
+  "appBar": {
+    "defaultTitle": "Bio-Vial Prop"
+  },
+  "drawer": {
+    "title": "Admin Access",
+    "adminBody": "To access the administrative system mode, insert the “grenade pin” on the game device within 5 seconds of powering on. Once the prop enters System Mode it will create a wifi access point called \"BrooklynTactical-<em>XYZ</em>\" that can be accessed without a password. System mode allows configuration of:<ul><li>Wifi network</li><li>Mesh networking</li><li>Firmware/Filesystem</li></ul>",
+    "logoAlt": "Brooklyn Tactical Logo"
+  },
+  "hero": {
+    "productName": "Bio-Vial",
+    "by": "by",
+    "brand": "Brooklyn Tactical"
+  },
+  "status": {
+    "loading": "Loading\u2026",
+    "state": "State:",
+    "gameTime": "Game Time:"
+  },
+  "settings": {
+    "title": "Game Settings",
+    "countdown": {
+      "label": "Countdown Time",
+      "unit": "min",
+      "description": "The main countdown timer. Once the vial is placed, armed and activated - this timer counts down to zero. If it reaches zero before the vial is disarmed, the vial contents are \"released\" and the attacking force wins. Range: 1–99 minutes."
+    },
+    "armDisarm": {
+      "label": "Arm / Disarm Time",
+      "unit": "sec",
+      "description": "The duration of the arming and disarming sequences. Players must keep the “grenade pin” inserted for this many seconds to complete the action. Removing the “grenade pin” before the countdown completes cancels the sequence. Range: 5-99 seconds."
+    },
+    "multipleArmings": {
+      "label": "Multiple Armings",
+      "description": "When enabled, successfully disarming the vial returns it to standby so it can be re-armed and disarmed again within the same round. When disabled, a successful disarm immediately ends the round."
+    },
+    "standby": {
+      "label": "Game Time",
+      "unit": "min",
+      "description": "The duration of the game's round that the device will be in play. Range: 0-199 minutes (0 disables the game round time limit)."
+    },
+    "showStandby": {
+      "label": "Show Game Time",
+      "description": "When enabled, the vial's LED display shows the remaining game time while waiting for players to activate the countdown sequence."
+    }
+  },
+  "control": {
+    "startGame": "Start Game",
+    "restartGame": "Restart Game"
+  },
+  "snackbar": {
+    "gameStarted": "New game started",
+    "gameStartError": "Error starting game!",
+    "defaultsSaved": "Defaults saved",
+    "defaultsSaveFailed": "Failed to save defaults",
+    "defaultsLoaded": "Defaults loaded",
+    "defaultsLoadFailed": "Failed to load defaults",
+    "noSavedDefaults": "No saved defaults found"
+  }
+}

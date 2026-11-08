@@ -1,0 +1,137 @@
+{
+  "appBar": {
+    "title": "系统管理"
+  },
+  "drawer": {
+    "navigation": "导航"
+  },
+  "nav": {
+    "groups": {
+      "network": "网络",
+      "otaUpdate": "OTA更新",
+      "diagnostics": "诊断"
+    },
+    "items": {
+      "wifi": "WiFi",
+      "mesh": "Mesh",
+      "filesystem": "文件系统",
+      "diagnostics": "诊断"
+    }
+  },
+  "home": {
+    "productName": "Bio-Vial",
+    "by": "出品方",
+    "brand": "Brooklyn Tactical",
+    "logoAlt": "Brooklyn Tactical 标志"
+  },
+  "wifi": {
+    "title": "WiFi配置",
+    "channel": "WiFi信道",
+    "apName": "AP名称",
+    "apNameCharCount": "{{len}}/31",
+    "apPassword": "AP密码",
+    "snackbar": {
+      "loadFailed": "加载WiFi设置失败",
+      "saved": "WiFi设置已保存"
+    }
+  },
+  "mesh": {
+    "title": "Mesh配置",
+    "gameNet": "游戏网络 #",
+    "gameMode": "游戏模式 #",
+    "meshNode": "Mesh节点 #",
+    "meshName": "Mesh节点名称",
+    "nameCharCount": "{{len}}/28个字符",
+    "error": {
+      "uint8": "必须为0–255",
+      "uint16": "必须为0–65535"
+    },
+    "snackbar": {
+      "loadFailed": "加载Mesh设置失败",
+      "saved": "Mesh设置已保存"
+    }
+  },
+  "filesystem": {
+    "title": "保存/恢复配置",
+    "warning": "使用此页面在手动更新硬件之前保存设备的配置文件，并在更新完成后将其恢复。",
+    "captiveNote": "许多设备会阻止通过内置的强制门户（Captive Portal）浏览器上传文件。如果无法选择文件，请先连接到此网络，然后在常规浏览器中打开 http://my.milsim.prop/。",
+    "liftButton": "保存配置",
+    "restoreButton": "恢复配置",
+    "nextSteps": "配置文件已保存到您的浏览器。您现在可以更新设备硬件。完成后返回此页面，单击\u201c恢复配置\u201d将文件写回设备。",
+    "dialog": {
+      "title": "覆盖已保存的配置？",
+      "body": "您的浏览器中已存有上次保存的配置文件。继续操作将使用当前设备的最新副本覆盖这些文件。是否继续？"
+    },
+    "status": {
+      "liftDone": "配置已成功保存。",
+      "liftError": "配置保存完成但出现错误——请查看上方日志。",
+      "restoreDone": "配置已成功恢复。",
+      "restoreError": "恢复完成但出现错误——请查看上方日志。"
+    },
+    "log": {
+      "fetchingFiles": "正在获取需要保留的文件列表…",
+      "manifestError": "无法读取文件系统清单",
+      "filesToPreserve": "需要保留的文件：{{files}}",
+      "filesToPreserveNone": "需要保留的文件：无",
+      "savingToStorage": "正在将文件保存到浏览器存储…",
+      "savedFile": "  ✓ 已保存 {{path}}",
+      "skippedFile": "  – 设备中未找到 {{path}}，已跳过",
+      "noFilesToRestore": "没有需要恢复的文件。",
+      "restoring": "  正在向设备恢复 {{count}} 个文件…",
+      "restoredFile": "  ✓ 已恢复 {{path}}",
+      "restoreFileFailed": "  ✗ 恢复 {{path}} 失败——已保留在浏览器存储中",
+      "restoreFileNetError": "  ✗ 恢复 {{path}} 时发生网络错误——已保留在浏览器存储中",
+      "liftComplete": "✓ 配置已保存！",
+      "liftPartial": "⚠ 部分文件无法保存——请查看上方日志。",
+      "error": "✗ 错误：{{message}}",
+      "restoreComplete": "✓ 恢复完成！",
+      "restorePartial": "⚠ 部分文件无法恢复。"
+    }
+  },
+  "diagnostics": {
+    "title": "诊断",
+    "ledBar": {
+      "title": "LED灯条"
+    },
+    "ledDisplay": {
+      "title": "LED显示器"
+    },
+    "speaker": {
+      "title": "扬声器",
+      "beep": "蜂鸣"
+    },
+    "armDisarm": {
+      "title": "布防/撤防",
+      "readStatus": "读取状态",
+      "status": "状态：{{value}}"
+    },
+    "eeprom": {
+      "title": "EEPROM",
+      "invalidChars": "仅允许使用0–9和A–F",
+      "charCountFull": "{{len}}/{{expected}} 个十六进制字符（{{bytes}} 字节）",
+      "charCount": "{{len}} 个十六进制字符"
+    },
+    "system": {
+      "title": "系统",
+      "reboot": "重启",
+      "rebooting": "正在重启…"
+    },
+    "snackbar": {
+      "rebooting": "设备正在重启——请在几秒钟后重新连接",
+      "eepromWritten": "EEPROM写入成功",
+      "eepromInvalid": "EEPROM内容无效：应为 {{expected}} 个十六进制字符",
+      "ledFailed": "设置LED失败 [HTTP {{status}}]",
+      "ledFailedNet": "设置LED失败：{{message}}",
+      "displayFailed": "设置显示器失败 [HTTP {{status}}]",
+      "displayFailedNet": "设置显示器失败：{{message}}",
+      "beepFailed": "蜂鸣失败 [HTTP {{status}}]",
+      "beepFailedNet": "蜂鸣失败：{{message}}",
+      "readStatusFailed": "读取状态失败 [HTTP {{status}}]",
+      "readStatusFailedNet": "读取状态失败：{{message}}",
+      "eepromReadFailed": "读取EEPROM失败 [HTTP {{status}}]",
+      "eepromReadFailedNet": "读取EEPROM失败：{{message}}",
+      "eepromWriteFailed": "写入EEPROM失败 [HTTP {{status}}]",
+      "eepromWriteFailedNet": "写入EEPROM失败：{{message}}"
+    }
+  }
+}

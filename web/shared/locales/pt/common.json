@@ -1,0 +1,31 @@
+{
+  "battery": {
+    "level": "Nível da bateria: {{pct}}%",
+    "readFailed": "Falha ao ler o nível da bateria"
+  },
+  "versions": {
+    "hw": "Versão HW: {{version}}",
+    "sw": "Versão SW: {{version}}",
+    "fs": "Versão do sistema de arquivos: {{version}}",
+    "fsShort": "Versão FS: {{version}}"
+  },
+  "action": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "load": "Carregar",
+    "read": "Ler",
+    "write": "Gravar",
+    "proceed": "Continuar"
+  },
+  "error": {
+    "httpSaveFailed": "Falha ao salvar [HTTP {{status}}]{{detail}}",
+    "netSaveFailed": "Falha ao salvar: {{message}}"
+  },
+  "language": {
+    "label": "Idioma"
+  },
+  "onOff": {
+    "on": "Ligado",
+    "off": "Desligado"
+  }
+}

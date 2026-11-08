@@ -1,0 +1,137 @@
+{
+  "appBar": {
+    "title": "Administrador do Sistema"
+  },
+  "drawer": {
+    "navigation": "Navegação"
+  },
+  "nav": {
+    "groups": {
+      "network": "Rede",
+      "otaUpdate": "Atualização OTA",
+      "diagnostics": "Diagnósticos"
+    },
+    "items": {
+      "wifi": "WiFi",
+      "mesh": "Malha",
+      "filesystem": "Sistema de Arquivos",
+      "diagnostics": "Diagnósticos"
+    }
+  },
+  "home": {
+    "productName": "Bio-Vial",
+    "by": "por",
+    "brand": "Brooklyn Tactical",
+    "logoAlt": "Logotipo da Brooklyn Tactical"
+  },
+  "wifi": {
+    "title": "Configuração de WiFi",
+    "channel": "Canal WiFi",
+    "apName": "Nome do AP",
+    "apNameCharCount": "{{len}}/31",
+    "apPassword": "Senha do AP",
+    "snackbar": {
+      "loadFailed": "Falha ao carregar as configurações de WiFi",
+      "saved": "Configurações de WiFi salvas"
+    }
+  },
+  "mesh": {
+    "title": "Configuração da Malha",
+    "gameNet": "Rede de Jogo #",
+    "gameMode": "Modo de Jogo #",
+    "meshNode": "Nó da Malha #",
+    "meshName": "Nome do Nó da Malha",
+    "nameCharCount": "{{len}}/28 caracteres",
+    "error": {
+      "uint8": "Deve estar entre 0 e 255",
+      "uint16": "Deve estar entre 0 e 65535"
+    },
+    "snackbar": {
+      "loadFailed": "Falha ao carregar as configurações da malha",
+      "saved": "Configurações da malha salvas"
+    }
+  },
+  "filesystem": {
+    "title": "Salvar/Restaurar Configuração",
+    "warning": "Use esta página para salvar os arquivos de configuração do seu dispositivo antes de atualizar o hardware manualmente e para restaurá-los após a conclusão da atualização.",
+    "captiveNote": "Muitos dispositivos bloqueiam o envio de arquivos pelo navegador integrado do portal cativo. Se você não conseguir selecionar um arquivo, conecte-se primeiro a esta rede e depois abra http://my.milsim.prop/ em seu navegador normal.",
+    "liftButton": "Salvar Configuração",
+    "restoreButton": "Restaurar Configuração",
+    "nextSteps": "Os arquivos de configuração foram salvos no seu navegador. Agora você pode atualizar o hardware do dispositivo. Quando terminar, retorne a esta página e clique em \u00abRestaurar Configuração\u00bb para gravar os arquivos de volta.",
+    "dialog": {
+      "title": "Sobrescrever configuração salva?",
+      "body": "Já existem arquivos de configuração de um salvamento anterior armazenados no seu navegador. Continuar irá sobrescrevê-los com uma nova cópia do dispositivo atual. Deseja continuar?"
+    },
+    "status": {
+      "liftDone": "Configuração salva com sucesso.",
+      "liftError": "O salvamento da configuração foi concluído com erros — verifique o registro acima.",
+      "restoreDone": "Configuração restaurada com sucesso.",
+      "restoreError": "A restauração foi concluída com erros — verifique o registro acima."
+    },
+    "log": {
+      "fetchingFiles": "Obtendo a lista de arquivos a preservar…",
+      "manifestError": "Não foi possível ler o manifesto do sistema de arquivos",
+      "filesToPreserve": "Arquivos a preservar: {{files}}",
+      "filesToPreserveNone": "Arquivos a preservar: nenhum",
+      "savingToStorage": "Salvando arquivos no armazenamento do navegador…",
+      "savedFile": "  ✓ Salvo {{path}}",
+      "skippedFile": "  – {{path}} não encontrado no dispositivo, ignorando",
+      "noFilesToRestore": "Nenhum arquivo para restaurar.",
+      "restoring": "  Restaurando {{count}} arquivo(s) para o dispositivo…",
+      "restoredFile": "  ✓ Restaurado {{path}}",
+      "restoreFileFailed": "  ✗ Falha ao restaurar {{path}} — mantido no armazenamento do navegador",
+      "restoreFileNetError": "  ✗ Erro de rede ao restaurar {{path}} — mantido no armazenamento do navegador",
+      "liftComplete": "✓ Configuração salva!",
+      "liftPartial": "⚠ Alguns arquivos não puderam ser salvos — consulte o registro acima.",
+      "error": "✗ Erro: {{message}}",
+      "restoreComplete": "✓ Restauração concluída!",
+      "restorePartial": "⚠ Alguns arquivos não puderam ser restaurados."
+    }
+  },
+  "diagnostics": {
+    "title": "Diagnósticos",
+    "ledBar": {
+      "title": "Barra de LEDs"
+    },
+    "ledDisplay": {
+      "title": "Display de LEDs"
+    },
+    "speaker": {
+      "title": "Alto-falante",
+      "beep": "Bipe"
+    },
+    "armDisarm": {
+      "title": "Armar/Desarmar",
+      "readStatus": "Ler Status",
+      "status": "Status: {{value}}"
+    },
+    "eeprom": {
+      "title": "EEPROM",
+      "invalidChars": "Somente 0–9 e A–F são permitidos",
+      "charCountFull": "{{len}}/{{expected}} caracteres hexadecimais ({{bytes}} bytes)",
+      "charCount": "{{len}} caracteres hexadecimais"
+    },
+    "system": {
+      "title": "Sistema",
+      "reboot": "Reiniciar",
+      "rebooting": "Reiniciando…"
+    },
+    "snackbar": {
+      "rebooting": "Reiniciando o dispositivo — reconecte-se em alguns segundos",
+      "eepromWritten": "EEPROM gravada",
+      "eepromInvalid": "Conteúdo da EEPROM inválido: esperados {{expected}} caracteres hexadecimais",
+      "ledFailed": "Falha ao configurar o LED [HTTP {{status}}]",
+      "ledFailedNet": "Falha ao configurar o LED: {{message}}",
+      "displayFailed": "Falha ao configurar o display [HTTP {{status}}]",
+      "displayFailedNet": "Falha ao configurar o display: {{message}}",
+      "beepFailed": "Falha no bipe [HTTP {{status}}]",
+      "beepFailedNet": "Falha no bipe: {{message}}",
+      "readStatusFailed": "Falha ao ler o status [HTTP {{status}}]",
+      "readStatusFailedNet": "Falha ao ler o status: {{message}}",
+      "eepromReadFailed": "Falha na leitura da EEPROM [HTTP {{status}}]",
+      "eepromReadFailedNet": "Falha na leitura da EEPROM: {{message}}",
+      "eepromWriteFailed": "Falha na gravação da EEPROM [HTTP {{status}}]",
+      "eepromWriteFailedNet": "Falha na gravação da EEPROM: {{message}}"
+    }
+  }
+}

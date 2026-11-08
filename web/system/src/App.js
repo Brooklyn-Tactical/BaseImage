@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../../shared/LanguageSwitcher';
 import {
   CssBaseline, AppBar, Toolbar, IconButton, Typography,
   Drawer, List, ListItem, ListItemButton, ListItemText,
@@ -50,15 +52,23 @@ const theme = createTheme({
   },
 });
 
-const DRAWER_WIDTH = 240;
-
-const NAV_GROUPS = [
-  { group: 'Network', items: [{ label: 'WiFi', page: 'wifi' }, { label: 'Mesh', page: 'mesh' }] },
-  { group: 'OTA Update',     items: [{ label: 'Filesystem', page: 'filesystem' }] },
-  { group: 'Diagnostics',    items: [{ label: 'Diagnostics', page: 'diagnostics' }] },
-];
-
 function App() {
+  const { t } = useTranslation(['system', 'common']);
+
+  // NAV_GROUPS is derived inside the component so labels re-render on language change
+  const NAV_GROUPS = [
+    { group: t('system:nav.groups.network'), items: [
+      { label: t('system:nav.items.wifi'),  page: 'wifi'  },
+      { label: t('system:nav.items.mesh'),  page: 'mesh'  },
+    ]},
+    { group: t('system:nav.groups.otaUpdate'), items: [
+      { label: t('system:nav.items.filesystem'), page: 'filesystem' },
+    ]},
+    { group: t('system:nav.groups.diagnostics'), items: [
+      { label: t('system:nav.items.diagnostics'), page: 'diagnostics' },
+    ]},
+  ];
+
   const [page, setPage] = useState('home');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [battery, setBattery] = useState(null);
@@ -91,9 +101,9 @@ function App() {
   const handleBatteryClick = async () => {
     const pct = await fetchBattery();
     if (pct >= 0) {
-      showSnackbar('info', `Battery Level: ${pct}%`);
+      showSnackbar('info', t('common:battery.level', { pct }));
     } else {
-      showSnackbar('error', 'Failed to read battery level');
+      showSnackbar('error', t('common:battery.readFailed'));
     }
   };
 
@@ -120,7 +130,7 @@ function App() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" sx={{ flexGrow: 1, textAlign: 'center' }}>
-            System Admin
+            {t('system:appBar.title')}
           </Typography>
           <IconButton color="inherit" edge="end" onClick={handleBatteryClick}>
             <BattIcon />
@@ -133,14 +143,14 @@ function App() {
         anchor="left"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        sx={{ '& .MuiDrawer-paper': { width: DRAWER_WIDTH } }}
+        sx={{ '& .MuiDrawer-paper': { width: '240px', display: 'flex', flexDirection: 'column' } }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', px: 1, py: 0.5 }}>
           <IconButton onClick={() => setDrawerOpen(false)}>
             <MenuOpenIcon />
           </IconButton>
           <Typography variant="subtitle1" sx={{ flexGrow: 1, textAlign: 'center', pr: 5 }}>
-            Navigation
+            {t('system:drawer.navigation')}
           </Typography>
         </Box>
         <Divider />
@@ -158,6 +168,9 @@ function App() {
             </React.Fragment>
           ))}
         </List>
+        <Box sx={{ mt: 'auto', mb: 2, px: 2, pt: 2, borderTop: 1, borderColor: 'divider' }}>
+          <LanguageSwitcher />
+        </Box>
       </Drawer>
 
       {/* ── Page Content ── */}

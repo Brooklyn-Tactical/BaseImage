@@ -1,0 +1,137 @@
+{
+  "appBar": {
+    "title": "System Admin"
+  },
+  "drawer": {
+    "navigation": "Navigation"
+  },
+  "nav": {
+    "groups": {
+      "network": "Network",
+      "otaUpdate": "OTA Update",
+      "diagnostics": "Diagnostics"
+    },
+    "items": {
+      "wifi": "WiFi",
+      "mesh": "Mesh",
+      "filesystem": "Filesystem",
+      "diagnostics": "Diagnostics"
+    }
+  },
+  "home": {
+    "productName": "Bio-Vial",
+    "by": "by",
+    "brand": "Brooklyn Tactical",
+    "logoAlt": "Brooklyn Tactical Logo"
+  },
+  "wifi": {
+    "title": "WiFi Configuration",
+    "channel": "WiFi Channel",
+    "apName": "AP Name",
+    "apNameCharCount": "{{len}}/31",
+    "apPassword": "AP Password",
+    "snackbar": {
+      "loadFailed": "Failed to load WiFi settings",
+      "saved": "WiFi settings saved"
+    }
+  },
+  "mesh": {
+    "title": "Mesh Configuration",
+    "gameNet": "Game Net #",
+    "gameMode": "Game Mode #",
+    "meshNode": "Mesh Node #",
+    "meshName": "Mesh Node Name",
+    "nameCharCount": "{{len}}/28 characters",
+    "error": {
+      "uint8": "Must be 0\u2013255",
+      "uint16": "Must be 0\u201365535"
+    },
+    "snackbar": {
+      "loadFailed": "Failed to load Mesh settings",
+      "saved": "Mesh settings saved"
+    }
+  },
+  "filesystem": {
+    "title": "Config Save/Restore",
+    "warning": "Use this page to save your device\u2019s configuration files before manually updating its hardware, then restore them afterwards once the update is complete.",
+    "captiveNote": "Many devices block file uploads from the built-in captive-portal browser. If you cannot select a file, connect to this network first and then open http://my.milsim.prop/ in your normal browser.",
+    "liftButton": "Save Configuration",
+    "restoreButton": "Restore Configuration",
+    "nextSteps": "Configuration files have been saved to your browser. You can now update your device hardware. Return to this page when done and click \u201cRestore Configuration\u201d to write the files back.",
+    "dialog": {
+      "title": "Overwrite Saved Configuration?",
+      "body": "Configuration files from a previous save are already stored in your browser. Continuing will overwrite them with a fresh copy from the current device. Do you want to continue?"
+    },
+    "status": {
+      "liftDone": "Configuration saved successfully.",
+      "liftError": "Configuration save finished with errors \u2014 check the log above.",
+      "restoreDone": "Configuration restored successfully.",
+      "restoreError": "Restore finished with errors \u2014 check the log above."
+    },
+    "log": {
+      "fetchingFiles": "Fetching list of files to preserve\u2026",
+      "manifestError": "Could not read filesystem manifest",
+      "filesToPreserve": "Files to preserve: {{files}}",
+      "filesToPreserveNone": "Files to preserve: none",
+      "savingToStorage": "Saving files to browser storage\u2026",
+      "savedFile": "  \u2713 Saved {{path}}",
+      "skippedFile": "  \u2013 {{path}} not found on device, skipping",
+      "noFilesToRestore": "No files to restore.",
+      "restoring": "  Restoring {{count}} file(s) to device\u2026",
+      "restoredFile": "  \u2713 Restored {{path}}",
+      "restoreFileFailed": "  \u2717 Failed to restore {{path}} \u2014 kept in browser storage",
+      "restoreFileNetError": "  \u2717 Network error restoring {{path}} \u2014 kept in browser storage",
+      "liftComplete": "\u2713 Configuration saved!",
+      "liftPartial": "\u26a0 Some files could not be saved \u2014 see log above.",
+      "error": "\u2717 Error: {{message}}",
+      "restoreComplete": "\u2713 Restore complete!",
+      "restorePartial": "\u26a0 Some files could not be restored."
+    }
+  },
+  "diagnostics": {
+    "title": "Diagnostics",
+    "ledBar": {
+      "title": "LED Bar"
+    },
+    "ledDisplay": {
+      "title": "LED Display"
+    },
+    "speaker": {
+      "title": "Speaker",
+      "beep": "Beep"
+    },
+    "armDisarm": {
+      "title": "Arm/Disarm",
+      "readStatus": "Read Status",
+      "status": "Status: {{value}}"
+    },
+    "eeprom": {
+      "title": "EEPROM",
+      "invalidChars": "Only 0\u20139 and A\u2013F allowed",
+      "charCountFull": "{{len}}/{{expected}} hex characters ({{bytes}} bytes)",
+      "charCount": "{{len}} hex characters"
+    },
+    "system": {
+      "title": "System",
+      "reboot": "Reboot",
+      "rebooting": "Rebooting\u2026"
+    },
+    "snackbar": {
+      "rebooting": "Rebooting device \u2014 reconnect in a few seconds",
+      "eepromWritten": "EEPROM written",
+      "eepromInvalid": "EEPROM contents invalid: expected {{expected}} hex characters",
+      "ledFailed": "LED set failed [HTTP {{status}}]",
+      "ledFailedNet": "LED set failed: {{message}}",
+      "displayFailed": "Display set failed [HTTP {{status}}]",
+      "displayFailedNet": "Display set failed: {{message}}",
+      "beepFailed": "Beep failed [HTTP {{status}}]",
+      "beepFailedNet": "Beep failed: {{message}}",
+      "readStatusFailed": "Read Status failed [HTTP {{status}}]",
+      "readStatusFailedNet": "Read Status failed: {{message}}",
+      "eepromReadFailed": "EEPROM read failed [HTTP {{status}}]",
+      "eepromReadFailedNet": "EEPROM read failed: {{message}}",
+      "eepromWriteFailed": "EEPROM write failed [HTTP {{status}}]",
+      "eepromWriteFailedNet": "EEPROM write failed: {{message}}"
+    }
+  }
+}

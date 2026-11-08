@@ -1,0 +1,59 @@
+{
+  "appBar": {
+    "defaultTitle": "生化试剂瓶道具"
+  },
+  "drawer": {
+    "title": "管理员访问",
+    "adminBody": "如需进入管理员系统模式，请在设备开机后的 5 秒内将“手雷保险销”插入游戏设备。进入系统模式后，道具会创建一个名为 \"BrooklynTactical-<em>XYZ</em>\" 的 Wi-Fi 热点，无需密码即可连接。系统模式可用于配置：<ul><li>Wi-Fi 网络</li><li>Mesh 网状网络</li><li>固件／文件系统</li></ul>",
+    "logoAlt": "Brooklyn Tactical 标志"
+  },
+  "hero": {
+    "productName": "Bio-Vial",
+    "by": "出品方",
+    "brand": "Brooklyn Tactical"
+  },
+  "status": {
+    "loading": "加载中…",
+    "state": "状态：",
+    "gameTime": "游戏时间："
+  },
+  "settings": {
+    "title": "游戏设置",
+    "countdown": {
+      "label": "倒计时时间",
+      "unit": "分钟",
+      "description": "主倒计时计时器。试剂瓶被放置、布设并激活后，此计时器将开始倒数。当倒计时归零前若未成功解除装置，则视为试剂瓶内容物已“释放”，进攻方获胜。范围：1–99 分钟。"
+    },
+    "armDisarm": {
+      "label": "布设／解除时间",
+      "unit": "秒",
+      "description": "布设与解除流程所需的持续时间。玩家必须持续插入“手雷保险销”达到指定秒数，才能完成操作。若在倒计时结束前拔出“手雷保险销”，则本次操作会被取消。范围：5–99 秒。"
+    },
+    "multipleArmings": {
+      "label": "允许重复布设",
+      "description": "启用后，成功解除试剂瓶后将返回待机状态，可在同一回合内再次进行布设与解除。禁用后，一旦成功解除，当前回合将立即结束。"
+    },
+    "standby": {
+      "label": "回合时间",
+      "unit": "分钟",
+      "description": "设备参与游戏的回合持续时间。范围：0–199 分钟（设置为 0 表示关闭回合时间限制）。"
+    },
+    "showStandby": {
+      "label": "显示回合时间",
+      "description": "启用后，在等待玩家启动倒计时流程时，试剂瓶的 LED 显示屏将显示当前剩余回合时间。"
+    }
+  },
+  "control": {
+    "startGame": "开始游戏",
+    "restartGame": "重新开始"
+  },
+  "snackbar": {
+    "gameStarted": "新回合已开始",
+    "gameStartError": "开始游戏失败！",
+    "defaultsSaved": "默认设置已保存",
+    "defaultsSaveFailed": "默认设置保存失败",
+    "defaultsLoaded": "默认设置已加载",
+    "defaultsLoadFailed": "默认设置加载失败",
+    "noSavedDefaults": "未找到已保存的默认设置"
+  }
+}

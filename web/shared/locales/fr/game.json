@@ -1,0 +1,59 @@
+{
+  "appBar": {
+    "defaultTitle": "Accessoire Bio-Vial"
+  },
+  "drawer": {
+    "title": "Accès administrateur",
+    "adminBody": "Pour accéder au mode système d'administration, insérez la « goupille de grenade » sur le dispositif de jeu dans les 5 secondes suivant sa mise sous tension. Une fois l'accessoire passé en mode système, il créera un point d'accès Wi-Fi nommé \"BrooklynTactical-<em>XYZ</em>\" accessible sans mot de passe. Le mode système permet de configurer :<ul><li>Réseau Wi-Fi</li><li>Réseau maillé</li><li>Micrologiciel / système de fichiers</li></ul>",
+    "logoAlt": "Logo Brooklyn Tactical"
+  },
+  "hero": {
+    "productName": "Bio-Vial",
+    "by": "par",
+    "brand": "Brooklyn Tactical"
+  },
+  "status": {
+    "loading": "Chargement…",
+    "state": "État :",
+    "gameTime": "Temps de jeu :"
+  },
+  "settings": {
+    "title": "Paramètres de jeu",
+    "countdown": {
+      "label": "Temps du compte à rebours",
+      "unit": "min",
+      "description": "Le compte à rebours principal. Une fois la fiole placée, armée et activée, ce minuteur décompte jusqu'à zéro. S'il atteint zéro avant que la fiole ne soit désamorcée, son contenu est « libéré » et la force d'attaque remporte la manche. Plage : 1 à 99 minutes."
+    },
+    "armDisarm": {
+      "label": "Temps d'armement / désamorçage",
+      "unit": "sec",
+      "description": "Durée des séquences d'armement et de désamorçage. Les joueurs doivent maintenir la « goupille de grenade » insérée pendant ce nombre de secondes pour valider l'action. Retirer la « goupille de grenade » avant la fin du décompte annule la séquence. Plage : 5 à 99 secondes."
+    },
+    "multipleArmings": {
+      "label": "Armements multiples",
+      "description": "Lorsque cette option est activée, un désamorçage réussi remet la fiole en veille afin qu'elle puisse être réarmée et désamorcée plusieurs fois au cours de la même manche. Lorsqu'elle est désactivée, un désamorçage réussi met immédiatement fin à la manche."
+    },
+    "standby": {
+      "label": "Temps de jeu",
+      "unit": "min",
+      "description": "Durée de la manche pendant laquelle le dispositif reste en jeu. Plage : 0 à 199 minutes (0 désactive la limite de temps de la manche)."
+    },
+    "showStandby": {
+      "label": "Afficher le temps de jeu",
+      "description": "Lorsque cette option est activée, l'afficheur LED de la fiole indique le temps de jeu restant en attendant que les joueurs activent la séquence du compte à rebours."
+    }
+  },
+  "control": {
+    "startGame": "Démarrer la partie",
+    "restartGame": "Redémarrer la partie"
+  },
+  "snackbar": {
+    "gameStarted": "Nouvelle partie démarrée",
+    "gameStartError": "Erreur lors du démarrage de la partie !",
+    "defaultsSaved": "Paramètres par défaut enregistrés",
+    "defaultsSaveFailed": "Échec de l'enregistrement des paramètres par défaut",
+    "defaultsLoaded": "Paramètres par défaut chargés",
+    "defaultsLoadFailed": "Échec du chargement des paramètres par défaut",
+    "noSavedDefaults": "Aucun paramètre par défaut enregistré trouvé"
+  }
+}

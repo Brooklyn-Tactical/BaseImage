@@ -2,6 +2,7 @@
 #include "networking.h"   // provides FILESYSTEM macro and LittleFS
 #include <ArduinoJson.h>
 #include <Bounce2.h>
+#include <EEPROM.h>
 #include <FadeLed.h>
 #include <HAL.h>
 #include <TM1637TinyDisplay.h>
@@ -119,17 +120,6 @@ void ApiSystem::registerRoutes(AsyncWebServer& server) {
         }
     );
 
-    // Filesystem OTA upload
-    server.on("/api/system/ota/filesystem", HTTP_POST,
-        [this](AsyncWebServerRequest *request) {
-            this->otaFilesystemDone(request);
-        },
-        [this](AsyncWebServerRequest *request, String filename, size_t index,
-               uint8_t *data, size_t len, bool final) {
-            this->otaFilesystemUpload(request, filename, index, data, len, final);
-        }
-    );
-
     // Diagnostics: LED bar on/off (POST-only)
     static AsyncCallbackJsonWebHandler *diagLedHandler = new AsyncCallbackJsonWebHandler("/api/system/diag/led");
     diagLedHandler->setMaxContentLength(64);
@@ -190,13 +180,31 @@ void ApiSystem::registerRoutes(AsyncWebServer& server) {
         }
     });
 
-    // Diagnostics: EEPROM read (hardcoded; size matches firmware layout: HW float + 5 calib ints)
+    // Diagnostics: EEPROM read (size matches firmware layout: HW float + 5 calib ints)
     server.on("/api/system/diag/eeprom", HTTP_GET, [](AsyncWebServerRequest *request) {
+        // HW version (float) + 5 battery calibration levels (0%, 25%, 50%, 75%, 100%)
         const size_t size = sizeof(float) + 5 * sizeof(int);
+        uint8_t buf[size];
+
+        EEPROM.begin(size);
+        for (size_t i = 0; i < size; i++) {
+            buf[i] = EEPROM.read(i);
+        }
+        EEPROM.end();
+
+        // Encode raw bytes as uppercase hex string
+        char hex[size * 2 + 1];
+        for (size_t i = 0; i < size; i++) {
+            snprintf(hex + i * 2, 3, "%02X", buf[i]);
+        }
+        hex[size * 2] = '\0';
+
+        Serial.print(F("[Diag] EEPROM read: ")); Serial.println(hex);
+
         AsyncJsonResponse *response = new AsyncJsonResponse();
         JsonObject root = response->getRoot().to<JsonObject>();
         root["size"] = (uint32_t)size;
-        root["hex"]  = "0102030405060708090A0B0C0D0E0F101112131415161718";
+        root["hex"]  = hex;
         response->setCode(200);
         response->setLength();
         request->send(response);
@@ -208,7 +216,30 @@ void ApiSystem::registerRoutes(AsyncWebServer& server) {
     diagEepromHandler->setMethod(HTTP_POST);
     diagEepromHandler->onRequest([](AsyncWebServerRequest *request, JsonVariant &json) {
         const char *hex = json["hex"] | "";
+        const size_t size        = sizeof(float) + 5 * sizeof(int);
+        const size_t expectedLen = size * 2;
+
         Serial.print(F("[Diag] EEPROM write: ")); Serial.println(hex);
+
+        if (strlen(hex) != expectedLen) {
+            request->send(400, "application/json", "{\"error\":\"Invalid hex length\"}");
+            return;
+        }
+
+        // Decode hex string into byte buffer
+        uint8_t buf[size];
+        for (size_t i = 0; i < size; i++) {
+            char pair[3] = { hex[i * 2], hex[i * 2 + 1], '\0' };
+            buf[i] = (uint8_t)strtol(pair, nullptr, 16);
+        }
+
+        EEPROM.begin(size);
+        for (size_t i = 0; i < size; i++) {
+            EEPROM.write(i, buf[i]);
+        }
+        EEPROM.commit();
+        EEPROM.end();
+
         request->send(200, "application/json", "{\"success\":true}");
     });
     server.addHandler(diagEepromHandler);
@@ -368,52 +399,3 @@ void ApiSystem::setFile(AsyncWebServerRequest *request, uint8_t *data, size_t le
         }
     }
 }
-
-// ---------------------------------------------------------------------------
-// Filesystem OTA  POST /api/system/ota/filesystem
-// ---------------------------------------------------------------------------
-
-void ApiSystem::otaFilesystemUpload(AsyncWebServerRequest *request, String filename,
-                                     size_t index, uint8_t *data, size_t len, bool final) {
-    if (index == 0) {
-        Serial.println(F("[OTA] Filesystem upload started"));
-        FILESYSTEM.end();   // unmount before flashing
-#ifdef ESP32
-        if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_SPIFFS)) {
-#else
-        if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FS)) {
-#endif
-            Serial.println(F("[OTA] Update.begin failed"));
-            return;
-        }
-    }
-
-    if (Update.write(data, len) != len) {
-        Serial.println(F("[OTA] Update.write error"));
-    }
-
-    if (final) {
-        if (Update.end(true)) {
-            Serial.println(F("[OTA] Flash complete — remounting filesystem"));
-        } else {
-            Serial.print(F("[OTA] Update.end error: "));
-            Serial.println(Update.getError());
-        }
-        // Remount regardless so the device stays operational
-#ifdef ESP32
-        FILESYSTEM.begin(true);
-#else
-        FILESYSTEM.begin();
-#endif
-        Serial.println(F("[OTA] Filesystem remounted"));
-    }
-}
-
-void ApiSystem::otaFilesystemDone(AsyncWebServerRequest *request) {
-    bool ok = !Update.hasError();
-    Serial.print(F("[OTA] Filesystem OTA result: "));
-    Serial.println(ok ? "SUCCESS" : "FAILED");
-    request->send(ok ? 200 : 500, "application/json",
-                  ok ? "{\"success\":true}" : "{\"success\":false,\"error\":\"Flash failed\"}");
-}
-

@@ -1,0 +1,31 @@
+{
+  "battery": {
+    "level": "배터리 잔량: {{pct}}%",
+    "readFailed": "배터리 잔량을 읽어오지 못했습니다"
+  },
+  "versions": {
+    "hw": "H/W 버전: {{version}}",
+    "sw": "S/W 버전: {{version}}",
+    "fs": "파일시스템 버전: {{version}}",
+    "fsShort": "FS 버전: {{version}}"
+  },
+  "action": {
+    "save": "저장",
+    "cancel": "취소",
+    "load": "불러오기",
+    "read": "읽기",
+    "write": "쓰기",
+    "proceed": "진행"
+  },
+  "error": {
+    "httpSaveFailed": "저장 실패 [HTTP {{status}}]{{detail}}",
+    "netSaveFailed": "저장 실패: {{message}}"
+  },
+  "language": {
+    "label": "언어"
+  },
+  "onOff": {
+    "on": "켜짐",
+    "off": "꺼짐"
+  }
+}

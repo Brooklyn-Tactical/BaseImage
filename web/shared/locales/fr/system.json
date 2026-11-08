@@ -1,0 +1,137 @@
+{
+  "appBar": {
+    "title": "Administration du système"
+  },
+  "drawer": {
+    "navigation": "Navigation"
+  },
+  "nav": {
+    "groups": {
+      "network": "Réseau",
+      "otaUpdate": "Mise à jour OTA",
+      "diagnostics": "Diagnostics"
+    },
+    "items": {
+      "wifi": "WiFi",
+      "mesh": "Maillage",
+      "filesystem": "Système de fichiers",
+      "diagnostics": "Diagnostics"
+    }
+  },
+  "home": {
+    "productName": "Bio-Vial",
+    "by": "par",
+    "brand": "Brooklyn Tactical",
+    "logoAlt": "Logo Brooklyn Tactical"
+  },
+  "wifi": {
+    "title": "Configuration WiFi",
+    "channel": "Canal WiFi",
+    "apName": "Nom du point d'accès",
+    "apNameCharCount": "{{len}}/31",
+    "apPassword": "Mot de passe du point d'accès",
+    "snackbar": {
+      "loadFailed": "Échec du chargement des paramètres WiFi",
+      "saved": "Paramètres WiFi enregistrés"
+    }
+  },
+  "mesh": {
+    "title": "Configuration du maillage",
+    "gameNet": "Réseau de jeu n°",
+    "gameMode": "Mode de jeu n°",
+    "meshNode": "Nœud de maillage n°",
+    "meshName": "Nom du nœud de maillage",
+    "nameCharCount": "{{len}}/28 caractères",
+    "error": {
+      "uint8": "Doit être compris entre 0 et 255",
+      "uint16": "Doit être compris entre 0 et 65535"
+    },
+    "snackbar": {
+      "loadFailed": "Échec du chargement des paramètres du maillage",
+      "saved": "Paramètres du maillage enregistrés"
+    }
+  },
+  "filesystem": {
+    "title": "Sauvegarde/Restauration de la configuration",
+    "warning": "Utilisez cette page pour sauvegarder les fichiers de configuration de votre appareil avant une mise à jour manuelle du matériel, puis pour les restaurer une fois la mise à jour terminée.",
+    "captiveNote": "De nombreux appareils bloquent les téléversements de fichiers depuis le navigateur intégré du portail captif. Si vous ne pouvez pas sélectionner de fichier, connectez-vous d'abord à ce réseau puis ouvrez http://my.milsim.prop/ dans votre navigateur habituel.",
+    "liftButton": "Sauvegarder la configuration",
+    "restoreButton": "Restaurer la configuration",
+    "nextSteps": "Les fichiers de configuration ont été enregistrés dans votre navigateur. Vous pouvez maintenant mettre à jour le matériel de votre appareil. Revenez sur cette page une fois terminé et cliquez sur \u00ab\u00a0Restaurer la configuration\u00a0\u00bb pour réécrire les fichiers.",
+    "dialog": {
+      "title": "Écraser la configuration sauvegardée ?",
+      "body": "Des fichiers de configuration issus d'une sauvegarde précédente sont déjà stockés dans votre navigateur. Continuer les écrasera avec une nouvelle copie provenant de l'appareil actuel. Voulez-vous continuer ?"
+    },
+    "status": {
+      "liftDone": "Configuration sauvegardée avec succès.",
+      "liftError": "La sauvegarde de la configuration s'est terminée avec des erreurs — consultez le journal ci-dessus.",
+      "restoreDone": "Configuration restaurée avec succès.",
+      "restoreError": "La restauration s'est terminée avec des erreurs — consultez le journal ci-dessus."
+    },
+    "log": {
+      "fetchingFiles": "Récupération de la liste des fichiers à conserver…",
+      "manifestError": "Impossible de lire le manifeste du système de fichiers",
+      "filesToPreserve": "Fichiers à conserver : {{files}}",
+      "filesToPreserveNone": "Fichiers à conserver : aucun",
+      "savingToStorage": "Enregistrement des fichiers dans le stockage du navigateur…",
+      "savedFile": "  ✓ {{path}} enregistré",
+      "skippedFile": "  – {{path}} introuvable sur l'appareil, ignoré",
+      "noFilesToRestore": "Aucun fichier à restaurer.",
+      "restoring": "  Restauration de {{count}} fichier(s) vers l'appareil…",
+      "restoredFile": "  ✓ {{path}} restauré",
+      "restoreFileFailed": "  ✗ Échec de la restauration de {{path}} — conservé dans le stockage du navigateur",
+      "restoreFileNetError": "  ✗ Erreur réseau lors de la restauration de {{path}} — conservé dans le stockage du navigateur",
+      "liftComplete": "✓ Configuration sauvegardée !",
+      "liftPartial": "⚠ Certains fichiers n'ont pas pu être sauvegardés — consultez le journal ci-dessus.",
+      "error": "✗ Erreur : {{message}}",
+      "restoreComplete": "✓ Restauration terminée !",
+      "restorePartial": "⚠ Certains fichiers n'ont pas pu être restaurés."
+    }
+  },
+  "diagnostics": {
+    "title": "Diagnostics",
+    "ledBar": {
+      "title": "Barre LED"
+    },
+    "ledDisplay": {
+      "title": "Afficheur LED"
+    },
+    "speaker": {
+      "title": "Haut-parleur",
+      "beep": "Bip"
+    },
+    "armDisarm": {
+      "title": "Armer/Désarmer",
+      "readStatus": "Lire l'état",
+      "status": "État : {{value}}"
+    },
+    "eeprom": {
+      "title": "EEPROM",
+      "invalidChars": "Seuls les caractères 0–9 et A–F sont autorisés",
+      "charCountFull": "{{len}}/{{expected}} caractères hexadécimaux ({{bytes}} octets)",
+      "charCount": "{{len}} caractères hexadécimaux"
+    },
+    "system": {
+      "title": "Système",
+      "reboot": "Redémarrer",
+      "rebooting": "Redémarrage…"
+    },
+    "snackbar": {
+      "rebooting": "Redémarrage de l'appareil — reconnectez-vous dans quelques secondes",
+      "eepromWritten": "EEPROM écrite",
+      "eepromInvalid": "Contenu EEPROM invalide : {{expected}} caractères hexadécimaux attendus",
+      "ledFailed": "Échec du réglage de la LED [HTTP {{status}}]",
+      "ledFailedNet": "Échec du réglage de la LED : {{message}}",
+      "displayFailed": "Échec du réglage de l'afficheur [HTTP {{status}}]",
+      "displayFailedNet": "Échec du réglage de l'afficheur : {{message}}",
+      "beepFailed": "Échec du bip [HTTP {{status}}]",
+      "beepFailedNet": "Échec du bip : {{message}}",
+      "readStatusFailed": "Échec de la lecture de l'état [HTTP {{status}}]",
+      "readStatusFailedNet": "Échec de la lecture de l'état : {{message}}",
+      "eepromReadFailed": "Échec de la lecture de l'EEPROM [HTTP {{status}}]",
+      "eepromReadFailedNet": "Échec de la lecture de l'EEPROM : {{message}}",
+      "eepromWriteFailed": "Échec de l'écriture de l'EEPROM [HTTP {{status}}]",
+      "eepromWriteFailedNet": "Échec de l'écriture de l'EEPROM : {{message}}"
+    }
+  }
+}

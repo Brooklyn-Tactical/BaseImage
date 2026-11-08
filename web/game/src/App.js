@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation, Trans } from 'react-i18next';
+import LanguageSwitcher from '../../shared/LanguageSwitcher';
 import {
   CssBaseline, AppBar, Toolbar, IconButton, Typography,
   Drawer, Divider, Snackbar, Box, Button, Stack, TextField,
@@ -43,8 +45,6 @@ const theme = createTheme({
   },
 });
 
-const DRAWER_WIDTH = 240;
-
 // Converts whole seconds from the firmware into hh:mm:ss (or mm:ss when < 1 hour)
 function formatGameTime(totalSeconds) {
   const s = Math.max(0, Math.floor(totalSeconds));
@@ -82,6 +82,8 @@ function SettingRow({ label, description, expanded, onToggle, children }) {
 }
 
 function App() {
+  const { t } = useTranslation(['game', 'common']);
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [battery, setBattery]       = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -129,8 +131,8 @@ function App() {
 
   const handleBatteryClick = async () => {
     const pct = await fetchBattery();
-    if (pct >= 0) showSnackbar('info', `Battery Level: ${pct}%`);
-    else          showSnackbar('error', 'Failed to read battery level');
+    if (pct >= 0) showSnackbar('info', t('common:battery.level', { pct }));
+    else          showSnackbar('error', t('common:battery.readFailed'));
   };
 
   // ── Versions ─────────────────────────────────────────────────────────────
@@ -220,11 +222,11 @@ function App() {
       const data = await response.json();
       if (data.success) {
         setGameState(data.state);
-        showSnackbar('success', 'New game started');
+        showSnackbar('success', t('game:snackbar.gameStarted'));
       }
     } catch (error) {
       console.error('Error starting game:', error);
-      showSnackbar('error', 'Error starting game!');
+      showSnackbar('error', t('game:snackbar.gameStartError'));
     }
   };
 
@@ -242,11 +244,11 @@ function App() {
         }),
       });
       const data = await response.json();
-      if (data.success !== false) showSnackbar('success', 'Defaults saved');
-      else showSnackbar('error', 'Failed to save defaults');
+      if (data.success !== false) showSnackbar('success', t('game:snackbar.defaultsSaved'));
+      else showSnackbar('error', t('game:snackbar.defaultsSaveFailed'));
     } catch (error) {
       console.error('Error saving defaults:', error);
-      showSnackbar('error', 'Failed to save defaults');
+      showSnackbar('error', t('game:snackbar.defaultsSaveFailed'));
     }
   };
 
@@ -254,7 +256,7 @@ function App() {
     try {
       const response = await fetch('/api/game/defaults');
       if (!response.ok) {
-        showSnackbar('info', 'No saved defaults found');
+        showSnackbar('info', t('game:snackbar.noSavedDefaults'));
         return;
       }
       const data = await response.json();
@@ -263,10 +265,10 @@ function App() {
       if (data.multipleArmings != null) handleMultipleArmings(data.multipleArmings);
       if (data.standbyMins     != null) handleStandbyMins(data.standbyMins);
       if (data.showStandbyTime != null) handleShowStandbyTime(data.showStandbyTime);
-      showSnackbar('success', 'Defaults loaded');
+      showSnackbar('success', t('game:snackbar.defaultsLoaded'));
     } catch (error) {
       console.error('Error loading defaults:', error);
-      showSnackbar('error', 'Failed to load defaults');
+      showSnackbar('error', t('game:snackbar.defaultsLoadFailed'));
     }
   };
 
@@ -286,7 +288,7 @@ function App() {
             <InfoOutlinedIcon />
           </IconButton>
           <Typography variant="h6" sx={{ flexGrow: 1, textAlign: 'center' }}>
-            {description || 'Bio-Vial Prop'}
+            {description || t('game:appBar.defaultTitle')}
           </Typography>
           <IconButton color="inherit" edge="end" onClick={handleBatteryClick}>
             <BattIcon />
@@ -299,44 +301,41 @@ function App() {
         anchor="left"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        sx={{ '& .MuiDrawer-paper': { width: DRAWER_WIDTH } }}
+        sx={{ '& .MuiDrawer-paper': { width: '240px' } }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', px: 1, py: 0.5 }}>
           <IconButton onClick={() => setDrawerOpen(false)}>
             <MenuOpenIcon />
           </IconButton>
           <Typography variant="subtitle1" sx={{ flexGrow: 1, textAlign: 'center', pr: 5 }}>
-            Admin Access
+            {t('game:drawer.title')}
           </Typography>
         </Box>
         <Divider />
         <Box sx={{ p: 2 }}>
           <Typography variant="body2" color="text.secondary">
-            To access the administrative System Mode press the "mode select" button on your prop within 5 seconds of
-            power up.  Once the prop enters System Mode it will create a wifi access point called
-            "BrooklynTactical-<i>XYZ</i>" that can be accessed without a password.  System mode allows configuration of:
-            <ul>
-              <li>Wifi network</li>
-              <li>Mesh networking</li>
-              <li>Firmware/Filesystem</li>
-            </ul>
+            <Trans
+              i18nKey="game:drawer.adminBody"
+              components={{ em: <i />, ul: <ul />, li: <li /> }}
+            />
           </Typography>
         </Box>
         <Box sx={{ mt: 'auto', p: 2, borderTop: 1, borderColor: 'divider' }}>
+          <LanguageSwitcher sx={{ mb: 2 }} />
           <Box
               component="img"
               src="/shared/BT-logo.jpg"
-              alt="Brooklyn Tactical Logo"
+              alt={t('game:drawer.logoAlt')}
               sx={{ width: '100%', maxWidth: 360, my: 2 }}
           />
           <Typography variant="caption" color="text.secondary" display="block" align="center">
-            H/W Version: {hw}
+            {t('common:versions.hw', { version: hw })}
           </Typography>
           <Typography variant="caption" color="text.secondary" display="block" align="center">
-            S/W Version: {fw}
+            {t('common:versions.sw', { version: fw })}
           </Typography>
           <Typography variant="caption" color="text.secondary" display="block" align="center">
-            FileSystem Version: {fs}
+            {t('common:versions.fs', { version: fs })}
           </Typography>
         </Box>
       </Drawer>
@@ -347,13 +346,13 @@ function App() {
         {/* Versions section — from HomePage */}
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4, px: 2 }}>
           <Typography variant="h4" align="center" fontWeight="bold" gutterBottom>
-            Bio-Vial
+            {t('game:hero.productName')}
           </Typography>
           <Typography variant="h6" align="center" color="text.secondary" gutterBottom>
-            by
+            {t('game:hero.by')}
           </Typography>
           <Typography variant="h4" align="center" fontWeight="bold" gutterBottom>
-            Brooklyn Tactical
+            {t('game:hero.brand')}
           </Typography>
         </Box>
 
@@ -362,24 +361,24 @@ function App() {
         {/* Game section */}
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', px: 2, pb: 4 }}>
           {loading ? (
-            <Typography variant="h6">Loading…</Typography>
+            <Typography variant="h6">{t('game:status.loading')}</Typography>
           ) : (
             <>
               <Box sx={{ mb: 3, textAlign: 'center' }}>
-                <Typography variant="body1"><strong>State:</strong> {gameState || 'configure'}</Typography>
+                <Typography variant="body1"><strong>{t('game:status.state')}</strong>{' '}{gameState || 'configure'}</Typography>
                 {['await_arming', 'arming', 'armed', 'countdown', 'disarming', 'disarmed'].includes(gameState) && (
-                  <Typography variant="body1"><strong>Game Time:</strong> {formatGameTime(gameTime)}</Typography>
+                  <Typography variant="body1"><strong>{t('game:status.gameTime')}</strong>{' '}{formatGameTime(gameTime)}</Typography>
                 )}
               </Box>
 
               {/* ── Game Settings Card ── */}
               <Card variant="outlined" sx={{ width: '100%', maxWidth: 360, mb: 3 }}>
                 <CardContent sx={{ pb: '12px !important' }}>
-                  <Typography variant="subtitle2" sx={{ mb: 1 }}>Game Settings</Typography>
+                  <Typography variant="subtitle2" sx={{ mb: 1 }}>{t('game:settings.title')}</Typography>
                   <Divider sx={{ mb: 0.5 }} />
                   <SettingRow
-                    label="Countdown Time"
-                    description="The main game countdown timer. Once the vial is armed and activated (pin removed), this timer counts down to zero. If it reaches zero before the vial is disarmed, the vial is released. Range: 1–99 minutes."
+                    label={t('game:settings.countdown.label')}
+                    description={t('game:settings.countdown.description')}
                     expanded={expCountdown}
                     onToggle={() => setExpCountdown(v => !v)}
                   >
@@ -389,15 +388,15 @@ function App() {
                       onChange={(e) => setCountdownMins(e.target.value)}
                       onBlur={(e) => handleCountdownMins(e.target.value)}
                       inputProps={{ min: 1, max: 99, step: 1 }}
-                      InputProps={{ endAdornment: <InputAdornment position="end">min</InputAdornment> }}
+                      InputProps={{ endAdornment: <InputAdornment position="end">{t('game:settings.countdown.unit')}</InputAdornment> }}
                       sx={{ width: 105 }}
                       size="small"
                     />
                   </SettingRow>
                   <Divider sx={{ my: 0.5 }} />
                   <SettingRow
-                    label="Arm / Disarm Time"
-                    description="The duration of the arming and disarming sequences. Players must keep the pin inserted (to disarm) or removed (to arm) for this many seconds to complete the action. Pulling or reinserting the pin before the countdown completes cancels the sequence. Range: 5–99 seconds."
+                    label={t('game:settings.armDisarm.label')}
+                    description={t('game:settings.armDisarm.description')}
                     expanded={expArmDisarm}
                     onToggle={() => setExpArmDisarm(v => !v)}
                   >
@@ -407,15 +406,15 @@ function App() {
                       onChange={(e) => setArmDisarmSecs(e.target.value)}
                       onBlur={(e) => handleArmDisarmSecs(e.target.value)}
                       inputProps={{ min: 5, max: 99, step: 1 }}
-                      InputProps={{ endAdornment: <InputAdornment position="end">sec</InputAdornment> }}
+                      InputProps={{ endAdornment: <InputAdornment position="end">{t('game:settings.armDisarm.unit')}</InputAdornment> }}
                       sx={{ width: 105 }}
                       size="small"
                     />
                   </SettingRow>
                   <Divider sx={{ my: 0.5 }} />
                   <SettingRow
-                    label="Multiple Armings"
-                    description="When enabled, successfully disarming the vial returns it to standby — it can be re-armed and disarmed again within the same round. When disabled, a successful disarm immediately ends the round."
+                    label={t('game:settings.multipleArmings.label')}
+                    description={t('game:settings.multipleArmings.description')}
                     expanded={expMultipleArmings}
                     onToggle={() => setExpMultipleArmings(v => !v)}
                   >
@@ -427,8 +426,8 @@ function App() {
                   </SettingRow>
                   <Divider sx={{ my: 0.5 }} />
                   <SettingRow
-                    label="Standby Time"
-                    description="The maximum time the vial will wait for players to interact with it before taking an automatic action. Range: 0–199 minutes (0 disables the standby countdown)."
+                    label={t('game:settings.standby.label')}
+                    description={t('game:settings.standby.description')}
                     expanded={expStandby}
                     onToggle={() => setExpStandby(v => !v)}
                   >
@@ -438,15 +437,15 @@ function App() {
                       onChange={(e) => setStandbyMins(e.target.value)}
                       onBlur={(e) => handleStandbyMins(e.target.value)}
                       inputProps={{ min: 0, max: 199, step: 1 }}
-                      InputProps={{ endAdornment: <InputAdornment position="end">min</InputAdornment> }}
+                      InputProps={{ endAdornment: <InputAdornment position="end">{t('game:settings.standby.unit')}</InputAdornment> }}
                       sx={{ width: 105 }}
                       size="small"
                     />
                   </SettingRow>
                   <Divider sx={{ my: 0.5 }} />
                   <SettingRow
-                    label="Show Standby Time"
-                    description="When enabled, the vial's LED display shows the remaining standby time while waiting for player interaction."
+                    label={t('game:settings.showStandby.label')}
+                    description={t('game:settings.showStandby.description')}
                     expanded={expShowStandby}
                     onToggle={() => setExpShowStandby(v => !v)}
                   >
@@ -467,14 +466,14 @@ function App() {
                     sx={{ flex: 1 }}
                     onClick={handleLoadDefaults}
                   >
-                    Load
+                    {t('common:action.load')}
                   </Button>
                   <Button
                     variant="outlined"
                     sx={{ flex: 1 }}
                     onClick={handleSaveDefaults}
                   >
-                    Save
+                    {t('common:action.save')}
                   </Button>
                 </Box>
                 <Button
@@ -484,7 +483,7 @@ function App() {
                   disabled={gameState === 'lowbattery'}
                   onClick={handleStartGame}
                 >
-                  {gameState === 'configure' || !gameState ? 'Start Game' : 'Restart Game'}
+                  {gameState === 'configure' || !gameState ? t('game:control.startGame') : t('game:control.restartGame')}
                 </Button>
               </Stack>
             </>

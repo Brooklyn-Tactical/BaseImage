@@ -1,0 +1,31 @@
+{
+  "battery": {
+    "level": "电量：{{pct}}%",
+    "readFailed": "电池电量读取失败"
+  },
+  "versions": {
+    "hw": "硬件版本：{{version}}",
+    "sw": "软件版本：{{version}}",
+    "fs": "文件系统版本：{{version}}",
+    "fsShort": "FS版本：{{version}}"
+  },
+  "action": {
+    "save": "保存",
+    "cancel": "取消",
+    "load": "加载",
+    "read": "读取",
+    "write": "写入",
+    "proceed": "继续"
+  },
+  "error": {
+    "httpSaveFailed": "保存失败 [HTTP {{status}}]{{detail}}",
+    "netSaveFailed": "保存失败：{{message}}"
+  },
+  "language": {
+    "label": "语言"
+  },
+  "onOff": {
+    "on": "开启",
+    "off": "关闭"
+  }
+}

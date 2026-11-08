@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Stack, TextField, Button } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 const DEFAULT_FORM = { gameNet: '', gameMode: '', meshNode: '', meshName: '' };
 
@@ -23,6 +24,7 @@ function normalize(data) {
 }
 
 export default function MeshPage({ onSnackbar }) {
+  const { t } = useTranslation(['system', 'common']);
   const [saved, setSaved] = useState(DEFAULT_FORM);
   const [form, setForm] = useState(DEFAULT_FORM);
 
@@ -34,7 +36,7 @@ export default function MeshPage({ onSnackbar }) {
         setSaved(vals);
         setForm(vals);
       })
-      .catch(() => onSnackbar('error', 'Failed to load Mesh settings'));
+      .catch(() => onSnackbar('error', t('system:mesh.snackbar.loadFailed')));
   }, []);
 
   const handleChange = (field) => (e) => {
@@ -65,14 +67,14 @@ export default function MeshPage({ onSnackbar }) {
       });
       if (r.ok) {
         setSaved(form);
-        onSnackbar('success', 'Mesh settings saved');
+        onSnackbar('success', t('system:mesh.snackbar.saved'));
       } else {
         const body = await r.json().catch(() => ({}));
         const detail = body.error ? `: ${body.error}` : '';
-        onSnackbar('error', `Save failed [HTTP ${r.status}]${detail}`);
+        onSnackbar('error', t('common:error.httpSaveFailed', { status: r.status, detail }));
       }
     } catch (err) {
-      onSnackbar('error', `Save failed: ${err.message}`);
+      onSnackbar('error', t('common:error.netSaveFailed', { message: err.message }));
     }
   };
 
@@ -80,46 +82,46 @@ export default function MeshPage({ onSnackbar }) {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>Mesh Configuration</Typography>
+      <Typography variant="h5" gutterBottom>{t('system:mesh.title')}</Typography>
       <Stack spacing={3} sx={{ maxWidth: 400 }}>
         <TextField
-          label="Game Net #"
+          label={t('system:mesh.gameNet')}
           value={form.gameNet}
           onChange={handleChange('gameNet')}
           error={errors.gameNet}
-          helperText={errors.gameNet ? 'Must be 0–255' : ' '}
+          helperText={errors.gameNet ? t('system:mesh.error.uint8') : ' '}
           inputProps={{ inputMode: 'numeric' }}
           fullWidth
         />
         <TextField
-          label="Game Mode #"
+          label={t('system:mesh.gameMode')}
           value={form.gameMode}
           onChange={handleChange('gameMode')}
           error={errors.gameMode}
-          helperText={errors.gameMode ? 'Must be 0–255' : ' '}
+          helperText={errors.gameMode ? t('system:mesh.error.uint8') : ' '}
           inputProps={{ inputMode: 'numeric' }}
           fullWidth
         />
         <TextField
-          label="Mesh Node #"
+          label={t('system:mesh.meshNode')}
           value={form.meshNode}
           onChange={handleChange('meshNode')}
           error={errors.meshNode}
-          helperText={errors.meshNode ? 'Must be 0–65535' : ' '}
+          helperText={errors.meshNode ? t('system:mesh.error.uint16') : ' '}
           inputProps={{ inputMode: 'numeric' }}
           fullWidth
         />
         <TextField
-          label="Mesh Node Name"
+          label={t('system:mesh.meshName')}
           value={form.meshName}
           onChange={handleChange('meshName')}
-          helperText={`${form.meshName.length}/28 characters`}
+          helperText={t('system:mesh.nameCharCount', { len: form.meshName.length })}
           inputProps={{ maxLength: 28 }}
           fullWidth
         />
         <Stack direction="row" spacing={2}>
-          <Button variant="contained" onClick={handleSave} disabled={hasErrors}>Save</Button>
-          <Button variant="outlined" onClick={handleCancel}>Cancel</Button>
+          <Button variant="contained" onClick={handleSave} disabled={hasErrors}>{t('common:action.save')}</Button>
+          <Button variant="outlined" onClick={handleCancel}>{t('common:action.cancel')}</Button>
         </Stack>
       </Stack>
     </Box>

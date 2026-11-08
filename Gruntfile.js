@@ -104,7 +104,7 @@ module.exports = function(grunt) {
   grunt.registerTask('gzip', 'Gzip compress .js, .css, .html files and delete originals', function() {
     const done = this.async();
     const dataWebDir = 'data/web';
-    const extensions = ['.js', '.css', '.html', '.txt'];
+    const extensions = ['.js', '.css', '.html', '.txt', '.json'];
 
     // Find all files to compress
     const filesToCompress = [];

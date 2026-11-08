@@ -59,7 +59,7 @@ This will:
 - copy the Game UI to `data/web/game/`
 - copy the System/Admin UI to `data/web/system/`
 - copy shared assets to `data/web/shared/`
-- gzip compress `.js`, `.css`, `.html`, and `.txt` files
+- gzip compress `.js`, `.css`, `.html`, `.txt`, and `.json` files
 - delete the original uncompressed files after gzip compression
 
 ### 3. Gzip Compression
@@ -284,10 +284,53 @@ Benefits:
 - **Optional target:** ESP32 (`esp32dev` environment is present)
 - **Networking:** `ESPAsyncWebServer`, custom DNS captive portal, mDNS
 - **Filesystem:** LittleFS
-- **Frontend:** React 18, Material UI, CSS
+- **Frontend:** React 18, Material UI, CSS, react-i18next
 - **Build Tools:** Webpack 5, Grunt, Babel
 - **Hardware support:** Bounce2, FadeLed, TM1637TinyDisplay, EEPROM-backed calibration
 - **APIs:** REST-style JSON APIs
+
+## Internationalization (i18n)
+
+Both React applications use [`react-i18next`](https://react.i18next.com/) with [`i18next-http-backend`](https://github.com/i18next/i18next-http-backend) to load translation catalogs at runtime from LittleFS. Translation strings are **not bundled** into the JS output — they are fetched on demand from `/shared/locales/{language}/{namespace}.json`.
+
+### Namespace layout
+
+| Namespace | Used by | Contents |
+|-----------|---------|----------|
+| `common`  | both apps | battery messages, generic action labels (Save, Cancel), version labels, language picker |
+| `game`    | Game UI only | app bar, info drawer, settings, game control buttons, snackbar messages |
+| `system`  | System UI only | nav drawer, all five page components |
+
+Key format: `section.subsectionOptional.name` — e.g. `battery.level`, `action.save`, `settings.countdown.label`.
+
+### Adding a new language
+
+1. Create the three catalog files:
+   ```
+   web/shared/locales/<code>/common.json
+   web/shared/locales/<code>/game.json
+   web/shared/locales/<code>/system.json
+   ```
+   Mirror the key structure from `web/shared/locales/en/`.
+
+2. Add an entry to the `LANGUAGES` array in `web/shared/i18n.js`:
+   ```js
+   { code: '<code>', label: '<Display Name in that language>' }
+   ```
+
+3. Run `npm run build` to gzip and deploy the new files.
+
+No changes to firmware or webpack configuration are required — the language picker in the Drawer of each UI will automatically include the new option.
+
+### Gzip behaviour
+
+Grunt compresses locale `.json` files alongside JS/HTML assets. `ESPAsyncWebServer` serves `filename.json.gz` transparently with `Content-Encoding: gzip` and `Content-Type: application/json` when only the `.gz` variant is present on LittleFS.
+
+The development proxy (`proxy-server.js`) serves locale files directly from `web/shared/` as plain JSON so no gzip handling is needed during local development.
+
+### Language persistence
+
+The selected language is stored in `localStorage` under the key `i18nextLng` and restored on the next page load. If no stored preference exists the browser's `Accept-Language` header is used, falling back to English.
 
 ## License
 

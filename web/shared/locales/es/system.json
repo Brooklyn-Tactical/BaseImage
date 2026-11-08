@@ -1,0 +1,137 @@
+{
+  "appBar": {
+    "title": "Administrador del Sistema"
+  },
+  "drawer": {
+    "navigation": "Navegación"
+  },
+  "nav": {
+    "groups": {
+      "network": "Red",
+      "otaUpdate": "Actualización OTA",
+      "diagnostics": "Diagnósticos"
+    },
+    "items": {
+      "wifi": "WiFi",
+      "mesh": "Malla",
+      "filesystem": "Sistema de Archivos",
+      "diagnostics": "Diagnósticos"
+    }
+  },
+  "home": {
+    "productName": "Bio-Vial",
+    "by": "por",
+    "brand": "Brooklyn Tactical",
+    "logoAlt": "Logotipo de Brooklyn Tactical"
+  },
+  "wifi": {
+    "title": "Configuración de WiFi",
+    "channel": "Canal WiFi",
+    "apName": "Nombre del AP",
+    "apNameCharCount": "{{len}}/31",
+    "apPassword": "Contraseña del AP",
+    "snackbar": {
+      "loadFailed": "No se pudieron cargar los ajustes de WiFi",
+      "saved": "Ajustes de WiFi guardados"
+    }
+  },
+  "mesh": {
+    "title": "Configuración de Malla",
+    "gameNet": "Red de Juego #",
+    "gameMode": "Modo de Juego #",
+    "meshNode": "Nodo de Malla #",
+    "meshName": "Nombre del Nodo de Malla",
+    "nameCharCount": "{{len}}/28 caracteres",
+    "error": {
+      "uint8": "Debe estar entre 0 y 255",
+      "uint16": "Debe estar entre 0 y 65535"
+    },
+    "snackbar": {
+      "loadFailed": "No se pudieron cargar los ajustes de la malla",
+      "saved": "Ajustes de la malla guardados"
+    }
+  },
+  "filesystem": {
+    "title": "Guardar/Restaurar Configuración",
+    "warning": "Use esta página para guardar los archivos de configuración de su dispositivo antes de actualizar el hardware manualmente, y para restaurarlos una vez completada la actualización.",
+    "captiveNote": "Muchos dispositivos bloquean las cargas de archivos desde el navegador integrado del portal cautivo. Si no puede seleccionar un archivo, conéctese primero a esta red y luego abra http://my.milsim.prop/ en su navegador habitual.",
+    "liftButton": "Guardar Configuración",
+    "restoreButton": "Restaurar Configuración",
+    "nextSteps": "Los archivos de configuración se han guardado en su navegador. Ahora puede actualizar el hardware del dispositivo. Cuando termine, regrese a esta página y haga clic en \u00abRestaurar Configuración\u00bb para volver a escribir los archivos.",
+    "dialog": {
+      "title": "¿Sobrescribir configuración guardada?",
+      "body": "Ya hay archivos de configuración de un guardado anterior almacenados en su navegador. Si continúa, se sobrescribirán con una copia nueva del dispositivo actual. ¿Desea continuar?"
+    },
+    "status": {
+      "liftDone": "Configuración guardada correctamente.",
+      "liftError": "El guardado de la configuración finalizó con errores — consulte el registro anterior.",
+      "restoreDone": "Configuración restaurada correctamente.",
+      "restoreError": "La restauración finalizó con errores — consulte el registro anterior."
+    },
+    "log": {
+      "fetchingFiles": "Obteniendo la lista de archivos a conservar…",
+      "manifestError": "No se pudo leer el manifiesto del sistema de archivos",
+      "filesToPreserve": "Archivos a conservar: {{files}}",
+      "filesToPreserveNone": "Archivos a conservar: ninguno",
+      "savingToStorage": "Guardando archivos en el almacenamiento del navegador…",
+      "savedFile": "  ✓ Guardado {{path}}",
+      "skippedFile": "  – {{path}} no se encontró en el dispositivo, se omitirá",
+      "noFilesToRestore": "No hay archivos para restaurar.",
+      "restoring": "  Restaurando {{count}} archivo(s) al dispositivo…",
+      "restoredFile": "  ✓ Restaurado {{path}}",
+      "restoreFileFailed": "  ✗ No se pudo restaurar {{path}} — se mantuvo en el almacenamiento del navegador",
+      "restoreFileNetError": "  ✗ Error de red al restaurar {{path}} — se mantuvo en el almacenamiento del navegador",
+      "liftComplete": "✓ ¡Configuración guardada!",
+      "liftPartial": "⚠ Algunos archivos no pudieron guardarse — consulte el registro anterior.",
+      "error": "✗ Error: {{message}}",
+      "restoreComplete": "✓ ¡Restauración completada!",
+      "restorePartial": "⚠ Algunos archivos no pudieron restaurarse."
+    }
+  },
+  "diagnostics": {
+    "title": "Diagnósticos",
+    "ledBar": {
+      "title": "Barra LED"
+    },
+    "ledDisplay": {
+      "title": "Pantalla LED"
+    },
+    "speaker": {
+      "title": "Altavoz",
+      "beep": "Pitido"
+    },
+    "armDisarm": {
+      "title": "Armar/Desarmar",
+      "readStatus": "Leer Estado",
+      "status": "Estado: {{value}}"
+    },
+    "eeprom": {
+      "title": "EEPROM",
+      "invalidChars": "Solo se permiten 0–9 y A–F",
+      "charCountFull": "{{len}}/{{expected}} caracteres hexadecimales ({{bytes}} bytes)",
+      "charCount": "{{len}} caracteres hexadecimales"
+    },
+    "system": {
+      "title": "Sistema",
+      "reboot": "Reiniciar",
+      "rebooting": "Reiniciando…"
+    },
+    "snackbar": {
+      "rebooting": "Reiniciando el dispositivo; vuelva a conectarse en unos segundos",
+      "eepromWritten": "EEPROM escrita",
+      "eepromInvalid": "Contenido de EEPROM no válido: se esperaban {{expected}} caracteres hexadecimales",
+      "ledFailed": "Error al configurar el LED [HTTP {{status}}]",
+      "ledFailedNet": "Error al configurar el LED: {{message}}",
+      "displayFailed": "Error al configurar la pantalla [HTTP {{status}}]",
+      "displayFailedNet": "Error al configurar la pantalla: {{message}}",
+      "beepFailed": "Error del pitido [HTTP {{status}}]",
+      "beepFailedNet": "Error del pitido: {{message}}",
+      "readStatusFailed": "Error al leer el estado [HTTP {{status}}]",
+      "readStatusFailedNet": "Error al leer el estado: {{message}}",
+      "eepromReadFailed": "Error al leer la EEPROM [HTTP {{status}}]",
+      "eepromReadFailedNet": "Error al leer la EEPROM: {{message}}",
+      "eepromWriteFailed": "Error al escribir la EEPROM [HTTP {{status}}]",
+      "eepromWriteFailedNet": "Error al escribir la EEPROM: {{message}}"
+    }
+  }
+}

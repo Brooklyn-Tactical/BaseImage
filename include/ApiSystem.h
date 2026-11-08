@@ -26,11 +26,6 @@ private:
     void getFile(AsyncWebServerRequest *request);
     void setFile(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total);
 
-    // Filesystem OTA
-    void otaFilesystemUpload(AsyncWebServerRequest *request, String filename,
-                             size_t index, uint8_t *data, size_t len, bool final);
-    void otaFilesystemDone(AsyncWebServerRequest *request);
-
     // State for chunked file write
     File _uploadFile;
 };

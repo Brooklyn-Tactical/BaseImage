@@ -1,0 +1,59 @@
+{
+  "appBar": {
+    "defaultTitle": "Bio-Vial Requisite"
+  },
+  "drawer": {
+    "title": "Admin-Zugang",
+    "adminBody": "Um auf den administrativen Systemmodus zuzugreifen, stecke innerhalb von 5 Sekunden nach dem Einschalten den „Granatsplint“ in das Spielgerät. Sobald das Requisite in den Systemmodus wechselt, erstellt es einen WLAN-Access-Point namens \"BrooklynTactical-<em>XYZ</em>\", der ohne Passwort erreichbar ist. Im Systemmodus können folgende Einstellungen vorgenommen werden:<ul><li>WLAN-Netzwerk</li><li>Mesh-Netzwerk</li><li>Firmware/Dateisystem</li></ul>",
+    "logoAlt": "Brooklyn Tactical Logo"
+  },
+  "hero": {
+    "productName": "Bio-Vial",
+    "by": "von",
+    "brand": "Brooklyn Tactical"
+  },
+  "status": {
+    "loading": "Lädt\u2026",
+    "state": "Status:",
+    "gameTime": "Spielzeit:"
+  },
+  "settings": {
+    "title": "Spieleinstellungen",
+    "countdown": {
+      "label": "Countdown-Zeit",
+      "unit": "Min",
+      "description": "Der Haupt-Countdown-Timer. Sobald das Vial platziert, scharfgeschaltet und aktiviert wurde, läuft dieser Timer bis auf null herunter. Erreicht er null, bevor das Vial entschärft wird, wird der Inhalt des Vials „freigesetzt“ und die angreifende Fraktion gewinnt. Bereich: 1–99 Minuten."
+    },
+    "armDisarm": {
+      "label": "Scharf-/Entschärfungszeit",
+      "unit": "Sek",
+      "description": "Die Dauer der Scharf- und Entschärfungssequenzen. Spieler müssen den „Granatsplint“ für diese Anzahl an Sekunden eingesteckt lassen, um die Aktion abzuschließen. Wird der „Granatsplint“ vor Ablauf des Countdowns entfernt, wird die Sequenz abgebrochen. Bereich: 5–99 Sekunden."
+    },
+    "multipleArmings": {
+      "label": "Mehrfaches Scharfschalten",
+      "description": "Wenn aktiviert, kehrt das Vial nach einer erfolgreichen Entschärfung in den Bereitschaftsmodus zurück und kann innerhalb derselben Runde erneut scharfgeschaltet und entschärft werden. Wenn deaktiviert, endet die Runde sofort nach einer erfolgreichen Entschärfung."
+    },
+    "standby": {
+      "label": "Spielzeit",
+      "unit": "Min",
+      "description": "Die Dauer der Spielrunde, während der das Gerät aktiv im Einsatz ist. Bereich: 0–199 Minuten (0 deaktiviert das Zeitlimit der Spielrunde)."
+    },
+    "showStandby": {
+      "label": "Spielzeit anzeigen",
+      "description": "Wenn aktiviert, zeigt die LED-Anzeige des Vials die verbleibende Spielzeit an, während auf die Aktivierung der Countdown-Sequenz durch die Spieler gewartet wird."
+    }
+  },
+  "control": {
+    "startGame": "Spiel starten",
+    "restartGame": "Spiel neu starten"
+  },
+  "snackbar": {
+    "gameStarted": "Neue Runde gestartet",
+    "gameStartError": "Fehler beim Starten der Runde!",
+    "defaultsSaved": "Standardeinstellungen gespeichert",
+    "defaultsSaveFailed": "Speichern der Standardeinstellungen fehlgeschlagen",
+    "defaultsLoaded": "Standardeinstellungen geladen",
+    "defaultsLoadFailed": "Laden der Standardeinstellungen fehlgeschlagen",
+    "noSavedDefaults": "Keine gespeicherten Standardeinstellungen gefunden"
+  }
+}

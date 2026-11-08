@@ -1,0 +1,137 @@
+{
+  "appBar": {
+    "title": "Systemverwaltung"
+  },
+  "drawer": {
+    "navigation": "Navigation"
+  },
+  "nav": {
+    "groups": {
+      "network": "Netzwerk",
+      "otaUpdate": "OTA-Update",
+      "diagnostics": "Diagnose"
+    },
+    "items": {
+      "wifi": "WiFi",
+      "mesh": "Mesh",
+      "filesystem": "Dateisystem",
+      "diagnostics": "Diagnose"
+    }
+  },
+  "home": {
+    "productName": "Bio-Vial",
+    "by": "von",
+    "brand": "Brooklyn Tactical",
+    "logoAlt": "Brooklyn Tactical Logo"
+  },
+  "wifi": {
+    "title": "WiFi-Konfiguration",
+    "channel": "WiFi-Kanal",
+    "apName": "AP-Name",
+    "apNameCharCount": "{{len}}/31",
+    "apPassword": "AP-Passwort",
+    "snackbar": {
+      "loadFailed": "WiFi-Einstellungen konnten nicht geladen werden",
+      "saved": "WiFi-Einstellungen gespeichert"
+    }
+  },
+  "mesh": {
+    "title": "Mesh-Konfiguration",
+    "gameNet": "Spielnetz #",
+    "gameMode": "Spielmodus #",
+    "meshNode": "Mesh-Knoten #",
+    "meshName": "Name des Mesh-Knotens",
+    "nameCharCount": "{{len}}/28 Zeichen",
+    "error": {
+      "uint8": "Muss zwischen 0 und 255 liegen",
+      "uint16": "Muss zwischen 0 und 65535 liegen"
+    },
+    "snackbar": {
+      "loadFailed": "Mesh-Einstellungen konnten nicht geladen werden",
+      "saved": "Mesh-Einstellungen gespeichert"
+    }
+  },
+  "filesystem": {
+    "title": "Konfiguration sichern/wiederherstellen",
+    "warning": "Verwenden Sie diese Seite, um die Konfigurationsdateien Ihres Geräts vor einer manuellen Hardware-Aktualisierung zu sichern und sie anschließend wiederherzustellen.",
+    "captiveNote": "Viele Geräte blockieren Datei-Uploads im integrierten Captive-Portal-Browser. Falls Sie keine Datei auswählen können, verbinden Sie sich zuerst mit diesem Netzwerk und öffnen Sie anschließend http://my.milsim.prop/ in Ihrem normalen Browser.",
+    "liftButton": "Konfiguration sichern",
+    "restoreButton": "Konfiguration wiederherstellen",
+    "nextSteps": "Die Konfigurationsdateien wurden in Ihrem Browser gespeichert. Sie können jetzt die Hardware Ihres Geräts aktualisieren. Kehren Sie danach zu dieser Seite zurück und klicken Sie auf \u201eKonfiguration wiederherstellen\u201c, um die Dateien zurückzuschreiben.",
+    "dialog": {
+      "title": "Gespeicherte Konfiguration überschreiben?",
+      "body": "In Ihrem Browser sind bereits Konfigurationsdateien einer früheren Sicherung gespeichert. Wenn Sie fortfahren, werden diese durch eine neue Kopie vom aktuellen Gerät überschrieben. Möchten Sie fortfahren?"
+    },
+    "status": {
+      "liftDone": "Konfiguration erfolgreich gesichert.",
+      "liftError": "Das Sichern der Konfiguration wurde mit Fehlern abgeschlossen – prüfen Sie das Protokoll oben.",
+      "restoreDone": "Konfiguration erfolgreich wiederhergestellt.",
+      "restoreError": "Die Wiederherstellung wurde mit Fehlern abgeschlossen – prüfen Sie das Protokoll oben."
+    },
+    "log": {
+      "fetchingFiles": "Liste der zu erhaltenden Dateien wird abgerufen…",
+      "manifestError": "Dateisystem-Manifest konnte nicht gelesen werden",
+      "filesToPreserve": "Zu erhaltende Dateien: {{files}}",
+      "filesToPreserveNone": "Zu erhaltende Dateien: keine",
+      "savingToStorage": "Dateien werden im Browser-Speicher gesichert…",
+      "savedFile": "  ✓ {{path}} gespeichert",
+      "skippedFile": "  – {{path}} nicht auf dem Gerät gefunden, wird übersprungen",
+      "noFilesToRestore": "Keine Dateien zur Wiederherstellung vorhanden.",
+      "restoring": "  {{count}} Datei(en) werden auf dem Gerät wiederhergestellt…",
+      "restoredFile": "  ✓ {{path}} wiederhergestellt",
+      "restoreFileFailed": "  ✗ {{path}} konnte nicht wiederhergestellt werden – im Browser-Speicher behalten",
+      "restoreFileNetError": "  ✗ Netzwerkfehler bei der Wiederherstellung von {{path}} – im Browser-Speicher behalten",
+      "liftComplete": "✓ Konfiguration gespeichert!",
+      "liftPartial": "⚠ Einige Dateien konnten nicht gespeichert werden – siehe Protokoll oben.",
+      "error": "✗ Fehler: {{message}}",
+      "restoreComplete": "✓ Wiederherstellung abgeschlossen!",
+      "restorePartial": "⚠ Einige Dateien konnten nicht wiederhergestellt werden."
+    }
+  },
+  "diagnostics": {
+    "title": "Diagnose",
+    "ledBar": {
+      "title": "LED-Leiste"
+    },
+    "ledDisplay": {
+      "title": "LED-Anzeige"
+    },
+    "speaker": {
+      "title": "Lautsprecher",
+      "beep": "Signalton"
+    },
+    "armDisarm": {
+      "title": "Aktivieren/Deaktivieren",
+      "readStatus": "Status lesen",
+      "status": "Status: {{value}}"
+    },
+    "eeprom": {
+      "title": "EEPROM",
+      "invalidChars": "Nur 0–9 und A–F sind erlaubt",
+      "charCountFull": "{{len}}/{{expected}} Hex-Zeichen ({{bytes}} Byte)",
+      "charCount": "{{len}} Hex-Zeichen"
+    },
+    "system": {
+      "title": "System",
+      "reboot": "Neu starten",
+      "rebooting": "Wird neu gestartet…"
+    },
+    "snackbar": {
+      "rebooting": "Gerät wird neu gestartet – verbinden Sie sich in wenigen Sekunden erneut",
+      "eepromWritten": "EEPROM geschrieben",
+      "eepromInvalid": "Ungültiger EEPROM-Inhalt: {{expected}} Hex-Zeichen erwartet",
+      "ledFailed": "LED konnte nicht gesetzt werden [HTTP {{status}}]",
+      "ledFailedNet": "LED konnte nicht gesetzt werden: {{message}}",
+      "displayFailed": "Anzeige konnte nicht gesetzt werden [HTTP {{status}}]",
+      "displayFailedNet": "Anzeige konnte nicht gesetzt werden: {{message}}",
+      "beepFailed": "Signalton fehlgeschlagen [HTTP {{status}}]",
+      "beepFailedNet": "Signalton fehlgeschlagen: {{message}}",
+      "readStatusFailed": "Status konnte nicht gelesen werden [HTTP {{status}}]",
+      "readStatusFailedNet": "Status konnte nicht gelesen werden: {{message}}",
+      "eepromReadFailed": "EEPROM konnte nicht gelesen werden [HTTP {{status}}]",
+      "eepromReadFailedNet": "EEPROM konnte nicht gelesen werden: {{message}}",
+      "eepromWriteFailed": "EEPROM konnte nicht geschrieben werden [HTTP {{status}}]",
+      "eepromWriteFailedNet": "EEPROM konnte nicht geschrieben werden: {{message}}"
+    }
+  }
+}

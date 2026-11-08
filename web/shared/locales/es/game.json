@@ -1,0 +1,59 @@
+{
+  "appBar": {
+    "defaultTitle": "Prop Bio-Vial"
+  },
+  "drawer": {
+    "title": "Acceso de Administrador",
+    "adminBody": "Para acceder al modo administrativo del sistema, inserta la \"anilla de granada\" en el dispositivo de juego dentro de los primeros 5 segundos tras encenderlo. Una vez que el prop entre en Modo Sistema, creará un punto de acceso Wi-Fi llamado \"BrooklynTactical-<em>XYZ</em>\" al que se puede acceder sin contraseña. El Modo Sistema permite configurar:<ul><li>Red Wi-Fi</li><li>Red mallada (mesh)</li><li>Firmware/Sistema de archivos</li></ul>",
+    "logoAlt": "Logotipo de Brooklyn Tactical"
+  },
+  "hero": {
+    "productName": "Bio-Vial",
+    "by": "por",
+    "brand": "Brooklyn Tactical"
+  },
+  "status": {
+    "loading": "Cargando…",
+    "state": "Estado:",
+    "gameTime": "Tiempo de partida:"
+  },
+  "settings": {
+    "title": "Configuración de la Partida",
+    "countdown": {
+      "label": "Tiempo de Cuenta Regresiva",
+      "unit": "min",
+      "description": "El temporizador principal de cuenta regresiva. Una vez que el vial ha sido colocado, armado y activado, este temporizador comenzará a descontar hasta llegar a cero. Si alcanza cero antes de que el vial sea desarmado, el contenido del vial será \"liberado\" y la fuerza atacante gana la partida. Rango: 1–99 minutos."
+    },
+    "armDisarm": {
+      "label": "Tiempo de Armado / Desarmado",
+      "unit": "seg",
+      "description": "Duración de las secuencias de armado y desarmado. Los jugadores deben mantener la \"anilla de granada\" insertada durante esta cantidad de segundos para completar la acción. Si se retira la \"anilla de granada\" antes de que termine la cuenta regresiva, la secuencia se cancelará. Rango: 5–99 segundos."
+    },
+    "multipleArmings": {
+      "label": "Múltiples Armados",
+      "description": "Cuando está activado, desarmar correctamente el vial lo devuelve al modo de espera para que pueda volver a armarse y desarmarse durante la misma ronda. Cuando está desactivado, un desarmado exitoso finaliza inmediatamente la ronda."
+    },
+    "standby": {
+      "label": "Tiempo de Partida",
+      "unit": "min",
+      "description": "La duración de la ronda durante la cual el dispositivo estará en juego. Rango: 0–199 minutos (0 desactiva el límite de tiempo de la ronda)."
+    },
+    "showStandby": {
+      "label": "Mostrar Tiempo de Partida",
+      "description": "Cuando está activado, la pantalla LED del vial mostrará el tiempo restante de la partida mientras espera a que los jugadores activen la secuencia de cuenta regresiva."
+    }
+  },
+  "control": {
+    "startGame": "Iniciar Partida",
+    "restartGame": "Reiniciar Partida"
+  },
+  "snackbar": {
+    "gameStarted": "Nueva partida iniciada",
+    "gameStartError": "¡Error al iniciar la partida!",
+    "defaultsSaved": "Configuración predeterminada guardada",
+    "defaultsSaveFailed": "No se pudo guardar la configuración predeterminada",
+    "defaultsLoaded": "Configuración predeterminada cargada",
+    "defaultsLoadFailed": "No se pudo cargar la configuración predeterminada",
+    "noSavedDefaults": "No se encontró ninguna configuración predeterminada guardada"
+  }
+}
