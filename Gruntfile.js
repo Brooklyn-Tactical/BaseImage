@@ -3,6 +3,7 @@ module.exports = function(grunt) {
   const fs = require('fs');
   const zlib = require('zlib');
   const path = require('path');
+  const { execFileSync } = require('child_process');
 
   // Project configuration
   grunt.initConfig({
@@ -209,12 +210,64 @@ module.exports = function(grunt) {
     });
   });
 
+  grunt.registerTask('package-release-create', 'Build binaries and create the next release directory', function() {
+    const pio = process.platform === 'win32' ? 'pio.exe' : 'pio';
+    const buildDir = path.join(__dirname, '.pio', 'build', 'esp8266dev');
+    const releasesDir = path.join(__dirname, 'binary_releases');
+
+    grunt.log.writeln('Building LittleFS image...');
+    execFileSync(pio, ['run', '-e', 'esp8266dev', '--target', 'buildfs'], {
+      cwd: __dirname,
+      stdio: 'inherit',
+    });
+
+    grunt.log.writeln('Building firmware...');
+    execFileSync(pio, ['run', '-e', 'esp8266dev'], {
+      cwd: __dirname,
+      stdio: 'inherit',
+    });
+
+    const hal = fs.readFileSync(path.join(__dirname, 'include', 'HAL.h'), 'utf8');
+    const major = hal.match(/FIRMWARE_VERSION_MAJOR\s+(\d+)/);
+    const minor = hal.match(/FIRMWARE_VERSION_MINOR\s+(\d+)/);
+    if (!major || !minor) {
+      grunt.fail.fatal('Could not read the firmware version from include/HAL.h');
+    }
+    const firmwareVersion = `v${major[1]}.${minor[1]}`;
+
+    const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'filesystem.json'), 'utf8'));
+    if (!manifest.version) {
+      grunt.fail.fatal('Could not read the filesystem version from data/filesystem.json');
+    }
+    const filesystemVersion = `v${manifest.version}`;
+
+    const releaseNumber = fs.readdirSync(releasesDir, { withFileTypes: true })
+      .filter(entry => entry.isDirectory() && /^r[0-9]+$/.test(entry.name))
+      .reduce((latest, entry) => Math.max(latest, parseInt(entry.name.slice(1), 10)), 0) + 1;
+    const releaseDir = path.join(releasesDir, `r${releaseNumber}`);
+    fs.mkdirSync(releaseDir);
+
+    fs.copyFileSync(path.join(buildDir, 'firmware.bin'), path.join(releaseDir, 'firmware.bin'));
+    fs.copyFileSync(path.join(buildDir, 'littlefs.bin'), path.join(releaseDir, 'littlefs.bin'));
+
+    const readmePath = path.join(releaseDir, 'README.md');
+    fs.copyFileSync(path.join(releasesDir, 'README_template.md'), readmePath);
+    const readme = fs.readFileSync(readmePath, 'utf8')
+      .replace(/^# Release #.*$/m, `# Release #${releaseNumber}`)
+      .replace('{{firmware_version}}', firmwareVersion)
+      .replace('{{filesystem_version}}', filesystemVersion);
+    fs.writeFileSync(readmePath, readme);
+
+    grunt.log.ok(`Created binary_releases/r${releaseNumber}`);
+    grunt.log.writeln('Edit its README.md to add hardware versions and release notes.');
+  });
+
   // Load grunt plugins
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-webpack');
-  
+
   // Register tasks
   grunt.registerTask('build-game', [
     'webpack:build',
@@ -255,5 +308,6 @@ module.exports = function(grunt) {
   // Add log to build task
   grunt.task.renameTask('build', 'build-internal');
   grunt.registerTask('build', ['build-internal', 'log-complete']);
+  grunt.registerTask('package-release', ['build', 'package-release-create']);
 };
 
