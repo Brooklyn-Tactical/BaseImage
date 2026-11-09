@@ -5,6 +5,7 @@
 #include <EEPROM.h>
 #include <FadeLed.h>
 #include <HAL.h>
+#include "game.h"
 #include <TM1637TinyDisplay.h>
 
 
@@ -53,7 +54,7 @@ void ApiSystem::registerRoutes(AsyncWebServer& server) {
         AsyncJsonResponse *response = new AsyncJsonResponse();
         JsonObject root = response->getRoot().to<JsonObject>();
         root["channel"]  = global_configuration["channel"]  | 1;
-        root["ssid"]     = global_configuration["ssid"]     | "BostonTactical";
+        root["ssid"]     = global_configuration["ssid"]     | "BrooklynTactical";
         root["password"] = global_configuration["password"] | "";
         response->setCode(200);
         response->setLength();
@@ -165,6 +166,18 @@ void ApiSystem::registerRoutes(AsyncWebServer& server) {
         Serial.println(F("[Diag] Beep"));
         tone(PIN_PIEZO_A,2500, 250);
         tone(PIN_PIEZO_B,2800, 250);
+        request->send(200, "application/json", "{\"success\":true}");
+    });
+
+    // Diagnostics: demo routine start/stop (handled on the main loop via flags)
+    server.on("/api/system/diag/demo/start", HTTP_POST, [](AsyncWebServerRequest *request) {
+        Serial.println(F("[Diag] Demo start"));
+        gameFSM.requestDemoStart();
+        request->send(200, "application/json", "{\"success\":true}");
+    });
+    server.on("/api/system/diag/demo/stop", HTTP_POST, [](AsyncWebServerRequest *request) {
+        Serial.println(F("[Diag] Demo stop"));
+        gameFSM.requestDemoStop();
         request->send(200, "application/json", "{\"success\":true}");
     });
 
