@@ -100,6 +100,11 @@
       "title": "Głośnik",
       "beep": "Sygnał dźwiękowy"
     },
+    "demo": {
+      "title": "Demo",
+      "start": "Uruchom demo",
+      "stop": "Zatrzymaj demo"
+    },
     "armDisarm": {
       "title": "Uzbrój/Rozbrój",
       "readStatus": "Odczytaj status",
@@ -126,6 +131,8 @@
       "displayFailedNet": "Błąd ustawienia wyświetlacza: {{message}}",
       "beepFailed": "Błąd sygnału dźwiękowego [HTTP {{status}}]",
       "beepFailedNet": "Błąd sygnału dźwiękowego: {{message}}",
+      "demoFailed": "Błąd polecenia demo [HTTP {{status}}]",
+      "demoFailedNet": "Błąd polecenia demo: {{message}}",
       "readStatusFailed": "Błąd odczytu statusu [HTTP {{status}}]",
       "readStatusFailedNet": "Błąd odczytu statusu: {{message}}",
       "eepromReadFailed": "Błąd odczytu EEPROM [HTTP {{status}}]",

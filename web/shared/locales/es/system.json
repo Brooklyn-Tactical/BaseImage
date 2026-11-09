@@ -100,6 +100,11 @@
       "title": "Altavoz",
       "beep": "Pitido"
     },
+    "demo": {
+      "title": "Demostración",
+      "start": "Iniciar demostración",
+      "stop": "Detener demostración"
+    },
     "armDisarm": {
       "title": "Armar/Desarmar",
       "readStatus": "Leer Estado",
@@ -126,6 +131,8 @@
       "displayFailedNet": "Error al configurar la pantalla: {{message}}",
       "beepFailed": "Error del pitido [HTTP {{status}}]",
       "beepFailedNet": "Error del pitido: {{message}}",
+      "demoFailed": "Error del comando de demostración [HTTP {{status}}]",
+      "demoFailedNet": "Error del comando de demostración: {{message}}",
       "readStatusFailed": "Error al leer el estado [HTTP {{status}}]",
       "readStatusFailedNet": "Error al leer el estado: {{message}}",
       "eepromReadFailed": "Error al leer la EEPROM [HTTP {{status}}]",

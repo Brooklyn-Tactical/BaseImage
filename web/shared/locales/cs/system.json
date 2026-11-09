@@ -100,6 +100,11 @@
       "title": "Reproduktor",
       "beep": "Pípnutí"
     },
+    "demo": {
+      "title": "Ukázka",
+      "start": "Spustit ukázku",
+      "stop": "Zastavit ukázku"
+    },
     "armDisarm": {
       "title": "Aktivace/Deaktivace",
       "readStatus": "Načíst stav",
@@ -126,6 +131,8 @@
       "displayFailedNet": "Nastavení displeje selhalo: {{message}}",
       "beepFailed": "Pípnutí selhalo [HTTP {{status}}]",
       "beepFailedNet": "Pípnutí selhalo: {{message}}",
+      "demoFailed": "Příkaz ukázky selhal [HTTP {{status}}]",
+      "demoFailedNet": "Příkaz ukázky selhal: {{message}}",
       "readStatusFailed": "Načtení stavu selhalo [HTTP {{status}}]",
       "readStatusFailedNet": "Načtení stavu selhalo: {{message}}",
       "eepromReadFailed": "Čtení EEPROM selhalo [HTTP {{status}}]",

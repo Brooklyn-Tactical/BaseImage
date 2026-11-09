@@ -100,6 +100,11 @@
       "title": "扬声器",
       "beep": "蜂鸣"
     },
+    "demo": {
+      "title": "演示",
+      "start": "运行演示",
+      "stop": "停止演示"
+    },
     "armDisarm": {
       "title": "布防/撤防",
       "readStatus": "读取状态",
@@ -126,6 +131,8 @@
       "displayFailedNet": "设置显示器失败：{{message}}",
       "beepFailed": "蜂鸣失败 [HTTP {{status}}]",
       "beepFailedNet": "蜂鸣失败：{{message}}",
+      "demoFailed": "演示命令失败 [HTTP {{status}}]",
+      "demoFailedNet": "演示命令失败：{{message}}",
       "readStatusFailed": "读取状态失败 [HTTP {{status}}]",
       "readStatusFailedNet": "读取状态失败：{{message}}",
       "eepromReadFailed": "读取EEPROM失败 [HTTP {{status}}]",

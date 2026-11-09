@@ -45,6 +45,8 @@ static const uint16_t EVT_NET_SETUP_DONE     = 103;
 static const uint16_t EVT_GAME_API_START     = 200;  // API requested game start
 static const uint16_t EVT_GAME_TIMER_END     = 202;  // Game duration timer expired
 static const uint16_t EVT_GAME_STANDBY_END   = 203;  // Standby duration timer expired
+static const uint16_t EVT_GAME_DEMO_START    = 204;  // Admin UI requested the demo routine
+static const uint16_t EVT_GAME_DEMO_END      = 205;  // Demo finished or Stop pressed
 
 #endif // HFSM_EVENTS_H
 

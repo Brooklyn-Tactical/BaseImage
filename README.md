@@ -2,6 +2,8 @@
 
 This repository contains the Bio-Vial standalone prop firmware and its browser-based Game and System/Admin interfaces.
 
+For operating instructions aimed at airsoft players and field referees, see the [Bio-Vial User Manual](doc/USER_MANUAL.md).
+
 The current default firmware target is an ESP8266 D1 Mini using the Arduino framework, LittleFS, `ESPAsyncWebServer`, and HFSM-based game/network state machines. The code also keeps ESP32 compatibility paths where supported.
 
 ## Project Structure
@@ -16,6 +18,7 @@ The current default firmware target is an ESP8266 D1 Mini using the Arduino fram
 │       ├── game/          # Compiled game UI served in game mode
 │       ├── shared/        # Shared static assets
 │       └── system/        # Compiled system/admin UI served in admin mode
+├── dist/                  # Webpack build output (copied to data/web/ by Grunt)
 ├── doc/                   # Project documentation
 ├── include/               # Firmware headers
 ├── scripts/               # PlatformIO helper scripts
@@ -98,7 +101,7 @@ npm run watch
 
 ### 6. Build and Upload Firmware
 
-The default PlatformIO environment is `esp8266dev` for a WeMos D1 Mini-style ESP8266 board.
+The PlatformIO environment is `esp8266dev` for a WeMos D1 Mini-style ESP8266 board, and it is the only environment defined.
 
 Build firmware:
 
@@ -136,7 +139,7 @@ On boot, the firmware mounts LittleFS, loads `/network.json`, starts the network
 
 ### Admin Mode
 
-Admin mode is for setup, recovery, diagnostics, filesystem access, and OTA filesystem updates.
+Admin mode is for setup, recovery, diagnostics, and lifting/restoring files on the filesystem.
 
 - AP SSID: `BrooklynTactical-<chip-suffix>`
 - Password: none; the admin AP is open by design for recovery
@@ -156,6 +159,8 @@ Game mode is normal field operation.
 
 ### Game Flow
 
+<img src="doc/FSM-states.png" alt="Game state operations flow diagram" width="100%">
+
 The game is controlled by the web API/UI and the arming pin. The main game FSM flow is:
 
 ```text
@@ -170,12 +175,17 @@ From `countdown`:
 - final pin removal moves to `gameover`
 
 If multiple armings are enabled, a successful disarm can return to `await_arming` instead of ending the round. A critical low-battery event can move the game to the terminal `lowbattery` state.
+ 
+### Demo Routine
+
+The demo is a scripted display, speaker and LED sequence for testing the prop. It is started from the **Diagnostics** page of the System/Admin UI (**Run Demo**).
+The demo code is separate from the real game states, so running it does not change game behaviour.
 
 ### Serial Terminal
 
 The serial terminal runs at `115200` baud and supports EEPROM setup commands for hardware revision and battery calibration.
 
-See `doc/serial_terminal.md` for the current command list and EEPROM layout.
+See `doc/Serial_Terminal.md` for the current command list and EEPROM layout.
 
 ## React Applications
 
@@ -192,8 +202,8 @@ See `doc/serial_terminal.md` for the current command list and EEPROM layout.
 
 - displays device information and system status
 - configures game-mode WiFi and device/mesh metadata
-- exposes file lift/restore and filesystem OTA operations
-- provides diagnostics for LED, display, speaker, arm-status, and EEPROM endpoints
+- exposes file lift/restore operations
+- provides diagnostics for LED, display, speaker, demo routine, arm-status, and EEPROM endpoints
 - integrates with `/api/system/*` endpoints
 
 **Access in admin mode:** `http://my.milsim.prop/` or `http://4.3.2.1/`
@@ -224,10 +234,11 @@ See `doc/serial_terminal.md` for the current command list and EEPROM layout.
 - `GET /api/system/files` - read lifted-file manifest from `/filesystem.json`
 - `GET /api/system/file?path=/...` - download a LittleFS file
 - `POST /api/system/file?path=/...` - upload a LittleFS file
-- `POST /api/system/ota/filesystem` - upload a filesystem image through OTA update handling
 - `POST /api/system/diag/led` - turn the main LED on/off
 - `POST /api/system/diag/display` - turn the display diagnostic on/off
 - `POST /api/system/diag/beep` - play a diagnostic beep
+- `POST /api/system/diag/demo/start` - start the demo routine (see [Demo Routine](#demo-routine))
+- `POST /api/system/diag/demo/stop` - stop the demo routine and return to `configure`
 - `GET /api/system/diag/armstatus` - read arm/disarm pin status
 - `GET /api/system/diag/eeprom` - diagnostic EEPROM read endpoint
 - `POST /api/system/diag/eeprom` - diagnostic EEPROM write endpoint
@@ -243,6 +254,29 @@ See `doc/Networking.md` for networking, captive-portal, and route details.
 3. Upload the LittleFS image with `platformio run --target uploadfs`.
 4. Build/upload firmware with `platformio run --target upload` when firmware changed.
 5. Use `platformio device monitor` at `115200` baud for boot logs and serial commands.
+
+### Binary Release Packaging
+
+Build the web applications, firmware, and LittleFS image, then package them as a new numbered release:
+
+```bash
+npx grunt package-release
+```
+
+You can also use `grunt package-release` if Grunt is available on your `PATH`.
+
+The `package-release` task:
+
+1. Runs the normal web build, including clean, copy, and gzip steps.
+2. Builds the LittleFS image and firmware for `esp8266dev`.
+3. Reads the firmware version from `include/HAL.h` and the filesystem version from `data/filesystem.json`.
+4. Finds the highest existing `binary_releases/rN` directory and creates the next one, such as `binary_releases/r4`.
+5. Copies `firmware.bin` and `littlefs.bin` into the new release directory.
+6. Copies `binary_releases/README_template.md` to the release's `README.md` and fills in its release number, firmware version, and filesystem version.
+
+After packaging, edit the new release's `README.md` to replace the remaining `{{hardware_version_list}}` and `{{release_notes}}` placeholders. Existing release directories are not overwritten.
+
+Run the task from a local or mapped-drive workspace path. PlatformIO does not support running its compiler commands with a UNC path as the current directory.
 
 ### Development Proxy Server (Faster Iteration)
 
@@ -281,7 +315,7 @@ Benefits:
 
 - **Firmware:** Arduino framework, PlatformIO, HFSM
 - **Default target:** ESP8266 D1 Mini (`esp8266dev`)
-- **Optional target:** ESP32 (`esp32dev` environment is present)
+- **Other targets:** `platformio.ini` currently defines only `esp8266dev`
 - **Networking:** `ESPAsyncWebServer`, custom DNS captive portal, mDNS
 - **Filesystem:** LittleFS
 - **Frontend:** React 18, Material UI, CSS, react-i18next

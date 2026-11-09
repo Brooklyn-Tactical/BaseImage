@@ -39,8 +39,42 @@ public:
     const hfsm::Transition* transitions() const override { return _trans; }
     uint8_t transitionCount()             const override { return _transCount; }
 
-    hfsm::Transition _trans[2];   // EVT_GAME_API_START -> AwaitStart, EVT_CORE_LOW_BATTERY -> LowBattery
+    hfsm::Transition _trans[3];   // EVT_GAME_API_START -> AwaitStart, EVT_CORE_LOW_BATTERY -> LowBattery, EVT_GAME_DEMO_START -> Demo
     uint8_t          _transCount = 0;
+};
+
+/// Scripted hardware demo started from the Admin UI. Top-level state; returns to
+/// ConfigureState on EVT_GAME_DEMO_END (Stop button). Runs until stopped.
+class DemoState : public hfsm::State {
+public:
+    DemoState(const char* name = "Demo");
+    void enter()  override;
+    void exit()   override;
+    void update() override;
+
+    const hfsm::Transition* transitions() const override { return _trans; }
+    uint8_t transitionCount()             const override { return _transCount; }
+
+    hfsm::Transition _trans[2];   // EVT_GAME_DEMO_END -> Configure, EVT_CORE_LOW_BATTERY -> LowBattery
+    uint8_t          _transCount = 0;
+
+private:
+    void setPhase(uint8_t phase);
+    void render(bool on);          // draws _digits honouring _blinkMask / _blankAll when !on
+
+    uint8_t       _phase       = 0;
+    unsigned long _phaseStart  = 0;
+    unsigned long _tickMs      = 0;   // per-second countdown tick reference
+    unsigned long _piezoUntil  = 0;
+    unsigned long _expire      = 0;   // countdown end (millis)
+    uint8_t       _digits[4]   = {0, 0, 0, 0};
+    uint8_t       _blinkMask   = 0;   // bit i = digit i blinks
+    bool          _blinkAll    = false;
+    unsigned int  _blinkCycle  = 0;   // 0 = no blinking
+    unsigned int  _blinkOnMs   = 0;
+    bool          _lastOn      = true;
+    bool          _fadeDir     = false;
+    bool          _blanked     = false;
 };
 
 // --- Root of gameplay hierarchy ---
@@ -259,6 +293,10 @@ public:
     /// String label of the current state for API responses.
     const char* stateName() const;
 
+    /// Thread-safe requests from web handlers; acted on in update() (main loop).
+    void requestDemoStart() { _demoStartRequested = true; }
+    void requestDemoStop()  { _demoStopRequested  = true; }
+
     // ── Data accessible by child states ──────────────────────────────────────
 
     /// Configured countdown duration in milliseconds (set via API, default 5 min).
@@ -313,6 +351,10 @@ private:
     DefenseWinState  _defenseWinState;
     GameOverState    _gameOverState;
     LowBatteryState  _lowBatteryState;
+    DemoState        _demoState;
+
+    volatile bool    _demoStartRequested = false;
+    volatile bool    _demoStopRequested  = false;
 
     /// Wire up all transition tables (called from constructor).
     void buildTransitions();

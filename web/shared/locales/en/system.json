@@ -100,6 +100,11 @@
       "title": "Speaker",
       "beep": "Beep"
     },
+    "demo": {
+      "title": "Demo",
+      "start": "Run Demo",
+      "stop": "Stop Demo"
+    },
     "armDisarm": {
       "title": "Arm/Disarm",
       "readStatus": "Read Status",
@@ -126,6 +131,8 @@
       "displayFailedNet": "Display set failed: {{message}}",
       "beepFailed": "Beep failed [HTTP {{status}}]",
       "beepFailedNet": "Beep failed: {{message}}",
+      "demoFailed": "Demo command failed [HTTP {{status}}]",
+      "demoFailedNet": "Demo command failed: {{message}}",
       "readStatusFailed": "Read Status failed [HTTP {{status}}]",
       "readStatusFailedNet": "Read Status failed: {{message}}",
       "eepromReadFailed": "EEPROM read failed [HTTP {{status}}]",

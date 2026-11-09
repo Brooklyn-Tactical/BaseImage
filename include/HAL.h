@@ -4,7 +4,7 @@
 
 // ----------- FIRMWARE REVISION -----------
 # define FIRMWARE_VERSION_MAJOR 2
-# define FIRMWARE_VERSION_MINOR 1
+# define FIRMWARE_VERSION_MINOR 2
 
 
 

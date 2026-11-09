@@ -100,6 +100,11 @@
       "title": "Haut-parleur",
       "beep": "Bip"
     },
+    "demo": {
+      "title": "Démo",
+      "start": "Lancer la démo",
+      "stop": "Arrêter la démo"
+    },
     "armDisarm": {
       "title": "Armer/Désarmer",
       "readStatus": "Lire l'état",
@@ -126,6 +131,8 @@
       "displayFailedNet": "Échec du réglage de l'afficheur : {{message}}",
       "beepFailed": "Échec du bip [HTTP {{status}}]",
       "beepFailedNet": "Échec du bip : {{message}}",
+      "demoFailed": "Échec de la commande de démo [HTTP {{status}}]",
+      "demoFailedNet": "Échec de la commande de démo : {{message}}",
       "readStatusFailed": "Échec de la lecture de l'état [HTTP {{status}}]",
       "readStatusFailedNet": "Échec de la lecture de l'état : {{message}}",
       "eepromReadFailed": "Échec de la lecture de l'EEPROM [HTTP {{status}}]",

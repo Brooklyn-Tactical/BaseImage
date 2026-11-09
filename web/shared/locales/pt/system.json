@@ -100,6 +100,11 @@
       "title": "Alto-falante",
       "beep": "Bipe"
     },
+    "demo": {
+      "title": "Demonstração",
+      "start": "Iniciar demonstração",
+      "stop": "Parar demonstração"
+    },
     "armDisarm": {
       "title": "Armar/Desarmar",
       "readStatus": "Ler Status",
@@ -126,6 +131,8 @@
       "displayFailedNet": "Falha ao configurar o display: {{message}}",
       "beepFailed": "Falha no bipe [HTTP {{status}}]",
       "beepFailedNet": "Falha no bipe: {{message}}",
+      "demoFailed": "Falha no comando de demonstração [HTTP {{status}}]",
+      "demoFailedNet": "Falha no comando de demonstração: {{message}}",
       "readStatusFailed": "Falha ao ler o status [HTTP {{status}}]",
       "readStatusFailedNet": "Falha ao ler o status: {{message}}",
       "eepromReadFailed": "Falha na leitura da EEPROM [HTTP {{status}}]",

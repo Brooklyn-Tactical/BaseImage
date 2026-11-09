@@ -100,6 +100,11 @@
       "title": "Lautsprecher",
       "beep": "Signalton"
     },
+    "demo": {
+      "title": "Demo",
+      "start": "Demo starten",
+      "stop": "Demo stoppen"
+    },
     "armDisarm": {
       "title": "Aktivieren/Deaktivieren",
       "readStatus": "Status lesen",
@@ -126,6 +131,8 @@
       "displayFailedNet": "Anzeige konnte nicht gesetzt werden: {{message}}",
       "beepFailed": "Signalton fehlgeschlagen [HTTP {{status}}]",
       "beepFailedNet": "Signalton fehlgeschlagen: {{message}}",
+      "demoFailed": "Demo-Befehl fehlgeschlagen [HTTP {{status}}]",
+      "demoFailedNet": "Demo-Befehl fehlgeschlagen: {{message}}",
       "readStatusFailed": "Status konnte nicht gelesen werden [HTTP {{status}}]",
       "readStatusFailedNet": "Status konnte nicht gelesen werden: {{message}}",
       "eepromReadFailed": "EEPROM konnte nicht gelesen werden [HTTP {{status}}]",

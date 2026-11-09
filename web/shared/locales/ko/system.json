@@ -100,6 +100,11 @@
       "title": "스피커",
       "beep": "비프음"
     },
+    "demo": {
+      "title": "데모",
+      "start": "데모 시작",
+      "stop": "데모 중지"
+    },
     "armDisarm": {
       "title": "무장/해제",
       "readStatus": "상태 읽기",
@@ -126,6 +131,8 @@
       "displayFailedNet": "디스플레이 설정 실패: {{message}}",
       "beepFailed": "비프음 실행 실패 [HTTP {{status}}]",
       "beepFailedNet": "비프음 실행 실패: {{message}}",
+      "demoFailed": "데모 명령 실패 [HTTP {{status}}]",
+      "demoFailedNet": "데모 명령 실패: {{message}}",
       "readStatusFailed": "상태 읽기 실패 [HTTP {{status}}]",
       "readStatusFailedNet": "상태 읽기 실패: {{message}}",
       "eepromReadFailed": "EEPROM 읽기 실패 [HTTP {{status}}]",

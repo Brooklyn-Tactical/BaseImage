@@ -71,6 +71,15 @@ export default function DiagnosticsPage({ onSnackbar }) {
     }
   };
 
+  const handleDemo = async (action) => {
+    try {
+      const r = await fetch(`/api/system/diag/demo/${action}`, { method: 'POST' });
+      if (!r.ok) onSnackbar('error', t('system:diagnostics.snackbar.demoFailed', { status: r.status }));
+    } catch (err) {
+      onSnackbar('error', t('system:diagnostics.snackbar.demoFailedNet', { message: err.message }));
+    }
+  };
+
   const handleReadStatus = async () => {
     try {
       const r = await fetch('/api/system/diag/armstatus');
@@ -166,6 +175,14 @@ export default function DiagnosticsPage({ onSnackbar }) {
         <Box>
           <Typography variant="subtitle1" gutterBottom>{t('system:diagnostics.speaker.title')}</Typography>
           <Button variant="contained" onClick={handleBeep}>{t('system:diagnostics.speaker.beep')}</Button>
+        </Box>
+
+        <Box>
+          <Typography variant="subtitle1" gutterBottom>{t('system:diagnostics.demo.title')}</Typography>
+          <Stack direction="row" spacing={2}>
+            <Button variant="contained" onClick={() => handleDemo('start')}>{t('system:diagnostics.demo.start')}</Button>
+            <Button variant="outlined" color="error" onClick={() => handleDemo('stop')}>{t('system:diagnostics.demo.stop')}</Button>
+          </Stack>
         </Box>
 
         <Box>

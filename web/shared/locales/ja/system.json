@@ -100,6 +100,11 @@
       "title": "スピーカー",
       "beep": "ビープ音"
     },
+    "demo": {
+      "title": "デモ",
+      "start": "デモを開始",
+      "stop": "デモを停止"
+    },
     "armDisarm": {
       "title": "アーム/解除",
       "readStatus": "状態を読み取る",
@@ -126,6 +131,8 @@
       "displayFailedNet": "ディスプレイ設定に失敗しました: {{message}}",
       "beepFailed": "ビープ音の実行に失敗しました [HTTP {{status}}]",
       "beepFailedNet": "ビープ音の実行に失敗しました: {{message}}",
+      "demoFailed": "デモコマンドの実行に失敗しました [HTTP {{status}}]",
+      "demoFailedNet": "デモコマンドの実行に失敗しました: {{message}}",
       "readStatusFailed": "状態の読み取りに失敗しました [HTTP {{status}}]",
       "readStatusFailedNet": "状態の読み取りに失敗しました: {{message}}",
       "eepromReadFailed": "EEPROMの読み取りに失敗しました [HTTP {{status}}]",

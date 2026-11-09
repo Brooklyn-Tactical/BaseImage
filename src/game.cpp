@@ -478,6 +478,202 @@ void LowBatteryState::update() {
 }
 
 // ---------------------------------------------------------------------------
+// DemoState — scripted display/audio/LED demo started from the Admin UI.
+// Runs until the Stop button (EVT_GAME_DEMO_END). Tone code is copied from the
+// Arming/Armed/Countdown states so those remain untouched.
+// ---------------------------------------------------------------------------
+
+namespace {
+    enum DemoPhase : uint8_t {
+        DP_IDLE, DP_BEEP1, DP_SET0, DP_SET1, DP_BEEP2, DP_COUNT,
+        DP_HOLD, DP_BLINK, DP_ARMING, DP_ARMED, DP_COUNTDOWN
+    };
+    const unsigned int FAST_CYCLE = 330, FAST_ON = 250;   // 250 on / 80 off
+    const unsigned int SLOW_CYCLE = 1000, SLOW_ON = 500;  // 500 on / 500 off
+    const unsigned long DEMO_COUNTDOWN_MS = 15UL * 60UL * 1000UL;
+}
+
+DemoState::DemoState(const char* name)
+    : hfsm::State(nullptr, name) {}
+
+void DemoState::enter() {
+    Serial.println(F("[Game] DemoState: demo started"));
+    MainLED.set(0);
+    setPhase(DP_IDLE);
+}
+
+void DemoState::exit() {
+    Serial.println(F("[Game] DemoState: demo ended"));
+    noTone(PIN_PIEZO_A);
+    noTone(PIN_PIEZO_B);
+    global_disp.showString_P(LEDSTR_BLANK);
+    MainLED.set(0);
+}
+
+void DemoState::render(bool on) {
+    uint8_t seg[4];
+    for (uint8_t i = 0; i < 4; i++) {
+        bool blank = !on && (_blinkAll || (_blinkMask & (1 << i)));
+        // Colon (0x80) lives on digit 1; keep it lit when only a single digit blinks.
+        uint8_t colon = (i == 1) ? 0x80 : 0;
+        if (blank) seg[i] = (_blinkAll ? 0 : colon);
+        else       seg[i] = global_disp.encodeDigit(_digits[i]) | colon;
+    }
+    global_disp.setSegments(seg, 4, 0);
+}
+
+void DemoState::setPhase(uint8_t phase) {
+    unsigned long now = millis();
+    _phase      = phase;
+    _phaseStart = now;
+    _blinkMask  = 0;
+    _blinkAll   = false;
+    _blinkCycle = 0;
+    _lastOn     = true;
+    _piezoUntil = 0;
+
+    switch (phase) {
+    case DP_IDLE:
+        global_disp.showString_P(LEDSTR_AWAIT);
+        break;
+    case DP_BEEP1:
+        tone(PIN_PIEZO_A, 2500, 500);
+        tone(PIN_PIEZO_B, 2800, 500);
+        break;
+    case DP_SET0:
+        _digits[0] = _digits[1] = _digits[2] = _digits[3] = 0;
+        _blinkMask = 0x01; _blinkCycle = FAST_CYCLE; _blinkOnMs = FAST_ON;
+        render(true);
+        break;
+    case DP_SET1:
+        _digits[0] = 1;
+        _blinkMask = 0x01; _blinkCycle = FAST_CYCLE; _blinkOnMs = FAST_ON;
+        render(true);
+        break;
+    case DP_BEEP2:
+        tone(PIN_PIEZO_A, 2500, 100);
+        tone(PIN_PIEZO_B, 2800, 100);
+        render(true);
+        break;
+    case DP_COUNT:
+        _digits[1] = 1;
+        _blinkMask = 0x02; _blinkCycle = FAST_CYCLE; _blinkOnMs = FAST_ON;
+        render(true);
+        break;
+    case DP_HOLD:
+        _digits[1] = 5;
+        _blinkMask = 0x02; _blinkCycle = FAST_CYCLE; _blinkOnMs = FAST_ON;
+        render(true);
+        break;
+    case DP_BLINK:
+        _blinkAll = true; _blinkCycle = SLOW_CYCLE; _blinkOnMs = SLOW_ON;
+        render(true);
+        break;
+    case DP_ARMING:
+        render(true);
+        MainLED.setTime(750);
+        MainLED.set(32);
+        _fadeDir = false;
+        break;
+    case DP_ARMED:
+        _blinkAll = true; _blinkCycle = FAST_CYCLE; _blinkOnMs = FAST_ON;
+        render(true);
+        MainLED.setTime(250);
+        break;
+    case DP_COUNTDOWN:
+        _expire  = now + DEMO_COUNTDOWN_MS;
+        _tickMs  = 0;       // immediate first tick
+        _blanked = false;
+        MainLED.setTime(2000);
+        break;
+    }
+}
+
+void DemoState::update() {
+    unsigned long now     = millis();
+    unsigned long elapsed = now - _phaseStart;
+
+    // Generic blinking for phases that request it
+    if (_blinkCycle) {
+        bool on = (elapsed % _blinkCycle) < _blinkOnMs;
+        if (on != _lastOn) { _lastOn = on; render(on); }
+    }
+
+    switch (_phase) {
+    case DP_IDLE:   if (elapsed >= 5000) setPhase(DP_BEEP1); break;
+    case DP_BEEP1:  if (elapsed >= 500)  setPhase(DP_SET0);  break;
+    case DP_SET0:   if (elapsed >= 3000) setPhase(DP_SET1);  break;
+    case DP_SET1:   if (elapsed >= 600)  setPhase(DP_BEEP2); break;
+    case DP_BEEP2:  if (elapsed >= 100)  setPhase(DP_COUNT); break;
+    case DP_COUNT: {
+        if (elapsed >= 6000) { setPhase(DP_HOLD); break; }
+        uint8_t d = 1 + (uint8_t)(elapsed / 1500UL);   // 1,2,3,4,5
+        if (d != _digits[1]) { _digits[1] = d; render(_lastOn); }
+        break;
+    }
+    case DP_HOLD:   if (elapsed >= 5000) setPhase(DP_BLINK); break;
+    case DP_BLINK:  if (elapsed >= 3000) setPhase(DP_ARMING); break;
+
+    case DP_ARMING: {
+        if (elapsed >= 10000) { setPhase(DP_ARMED); break; }
+        if (now >= _piezoUntil) {
+            unsigned long timeLeft = 10000UL - elapsed;
+            unsigned int complete  = (unsigned int)(timeLeft * 100UL / 10000UL);  // 100..0
+            unsigned int freq      = (unsigned int)map(complete, 0, 100, ARM_DISARM_TONE_HIGH, ARM_DISARM_TONE_LOW);
+            unsigned int interbeat = (unsigned int)map(complete, 0, 100, 300, 100);
+            unsigned int beep_dur  = (unsigned int)map(complete, 0, 100, 10, 250);
+            tone(PIN_PIEZO_A, freq, beep_dur);
+            tone(PIN_PIEZO_B, freq + interbeat, beep_dur);
+            _piezoUntil = now + beep_dur;
+        }
+        if (MainLED.done()) {
+            MainLED.set(_fadeDir ? 32 : 255);
+            _fadeDir = !_fadeDir;
+        }
+        break;
+    }
+
+    case DP_ARMED:
+        if (elapsed >= 4000) { setPhase(DP_COUNTDOWN); break; }
+        if (now >= _piezoUntil) {
+            tone(PIN_PIEZO_A, ARM_DISARM_TONE_HIGH,       100);
+            tone(PIN_PIEZO_B, ARM_DISARM_TONE_HIGH + 300, 100);
+            _piezoUntil = now + 110UL;
+        }
+        if (MainLED.done()) {
+            MainLED.set(_fadeDir ? 16 : 255);
+            _fadeDir = !_fadeDir;
+        }
+        break;
+
+    case DP_COUNTDOWN: {
+        if (now >= _expire) { dispatchEvent(EVT_GAME_DEMO_END); return; }
+        if (now - _tickMs >= 1000UL) {
+            _tickMs  = now;
+            _blanked = false;
+            tone(PIN_PIEZO_A, 3100, 100);
+            tone(PIN_PIEZO_B, 3800, 100);
+            uint16_t totalSecs = (uint16_t)((_expire - now) / 1000UL);
+            byte minutes = (byte)(totalSecs / 60);
+            byte secs    = (byte)(totalSecs % 60);
+            uint8_t dots = 0b01010000;
+            global_disp.showNumberDec(minutes, dots, true, 2, 0);
+            global_disp.showNumberDec(secs,    dots, true, 2, 2);
+        }
+        if (!_blanked && now - _tickMs >= 925UL) {
+            _blanked = true;
+            global_disp.showString_P(LEDSTR_BLANK);
+        }
+        if (MainLED.done()) {
+            MainLED.set(_fadeDir ? 32 : 255);
+            _fadeDir = !_fadeDir;
+        }
+        break;
+    }
+    }
+}
+
+// ---------------------------------------------------------------------------
 // GameFSM implementation
 // ---------------------------------------------------------------------------
 
@@ -506,7 +702,8 @@ GameFSM::GameFSM()
     , _offenseWinState(&_gameRootState, "OffenseWin")
     , _defenseWinState(&_gameRootState, "DefenseWin")
     , _gameOverState(&_gameRootState, this, "GameOver")
-    , _lowBatteryState("LowBattery") {
+    , _lowBatteryState("LowBattery")
+    , _demoState("Demo") {
     buildTransitions();
 }
 
@@ -515,6 +712,15 @@ void GameFSM::begin() {
 }
 
 void GameFSM::update() {
+    // Demo requests from web handlers are applied here, on the main loop.
+    if (_demoStartRequested) {
+        _demoStartRequested = false;
+        _machine.dispatch(hfsm::Event(EVT_GAME_DEMO_START));  // only acts in ConfigureState
+    }
+    if (_demoStopRequested) {
+        _demoStopRequested = false;
+        _machine.dispatch(hfsm::Event(EVT_GAME_DEMO_END));    // only acts in DemoState
+    }
     // Standby countdown tick — fires EVT_GAME_STANDBY_END once when the deadline passes.
     // Guard: disabled when _standbyTimeMinutes == 0 or deadline not yet latched.
     if (_standbyTimeMinutes != 0 && _standbyExpire != 0 && millis() >= _standbyExpire) {
@@ -537,7 +743,13 @@ void GameFSM::buildTransitions() {
     // ConfigureState: API start -> AwaitStart, low-battery -> LowBattery
     _configureState._trans[0] = { EVT_GAME_API_START,   nullptr, &_awaitStartState };
     _configureState._trans[1] = { EVT_CORE_LOW_BATTERY, nullptr, &_lowBatteryState };
-    _configureState._transCount = 2;
+    _configureState._trans[2] = { EVT_GAME_DEMO_START,  nullptr, &_demoState };
+    _configureState._transCount = 3;
+
+    // DemoState: Stop -> Configure, low-battery -> LowBattery
+    _demoState._trans[0] = { EVT_GAME_DEMO_END,    nullptr, &_configureState  };
+    _demoState._trans[1] = { EVT_CORE_LOW_BATTERY, nullptr, &_lowBatteryState };
+    _demoState._transCount = 2;
 
     // GameRootState: low-battery bubbles up to LowBattery for all children
     _gameRootState._trans[0] = { EVT_CORE_LOW_BATTERY, nullptr, &_lowBatteryState };
@@ -630,6 +842,7 @@ const char* GameFSM::stateName() const {
     if (cur == &_defenseWinState)  return "defense_win";
     if (cur == &_gameOverState)    return "gameover";
     if (cur == &_lowBatteryState)  return "lowbattery";
+    if (cur == &_demoState)        return "demo";
     return "configure"; // ConfigureState or not yet begun
 }
 
